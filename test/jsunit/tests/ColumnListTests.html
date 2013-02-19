@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>TableTests</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css" />
+        <script type="text/javascript" src="../app/jsUnitCore.js"></script>
+        <script type="text/javascript" src="../../../public_html/js/models.js"></script>
+        <script language="JavaScript">
+            // STORY: Add columns to a table.
+            // TASK: Make a container for columns. Order is not important.
+            
+
+            function testInitialCollectionIsEmpty() {
+                var columnList = new PropelDesigner.ColumnList();
+                assertEquals("List of columns should have 0 entries", 0, columnList.size());
+            }
+            
+            function testAddOneColumnToCollection() {
+                var columnList = new PropelDesigner.ColumnList();
+                columnList.addColumn(new PropelDesigner.Column());
+                assertEquals("List of columns should contain 1 entry", 1, columnList.size());
+            }
+            
+            function testAddTwoColumnsToCollection() {
+                var columnList = new PropelDesigner.ColumnList();
+                columnList.addColumn(new PropelDesigner.Column());
+                columnList.addColumn(new PropelDesigner.Column());
+                assertEquals("List of columns should contain two entries", 2, columnList.size());
+            }
+            
+            function testRetriveColumnsFromCollection() {
+                var columnList = new PropelDesigner.ColumnList(),
+                    column1 = new PropelDesigner.Column(),
+                    column2 = new PropelDesigner.Column(),
+                    collection = new Array(column1, column2);
+                
+                columnList.addColumn(column1);
+                columnList.addColumn(column2);
+                assertEquals("Retrieved collection should contain both columns", column1, columnList.getColumns()[0]);
+                assertEquals("Retrieved collection should contain both columns", column2, columnList.getColumns()[1]);
+            }
+            
+            function testAddAbitraryNumberOfColumns() {
+                var columnList = new PropelDesigner.ColumnList(),
+                    column1 = new PropelDesigner.Column(),
+                    column2 = new PropelDesigner.Column(),
+                    column3 = new PropelDesigner.Column(),
+                    retrieved;
+            
+                columnList.addColumn(column1);
+                columnList.addColumn(column2);
+                columnList.addColumn(column3);
+                retrieved = columnList.getColumns();
+                assertEquals("Retrieved collection should contain three columns", 3, columnList.size());
+                assertEquals("Retrieved collection should contain all columns", column1, retrieved[0]);
+                assertEquals("Retrieved collection should contain all columns", column2, retrieved[1]);
+                assertEquals("Retrieved collection should contain all columns", column3, retrieved[2]);
+            }
+        </script>
+    </head>
+    <body>
+        <p>Test Page for Tables.</p>
+    </body>
+</html>

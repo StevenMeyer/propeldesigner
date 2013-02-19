@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>TableTests</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css" />
+        <script type="text/javascript" src="../app/jsUnitCore.js"></script>
+        <script language="JavaScript">
+            // STORY: Add columns to a table.
+            // TASK: Make a container for columns. Ordering is not a concern.
+
+            function testInitialCollectionIsEmpty() {
+                var columnList = new PropelDesigner.ColumnList();
+                assertEquals("List of columns should have 0 entries", 0, columnList.length);
+            }
+        </script>
+    </head>
+    <body>
+        <p>Test Page for Tables.</p>
+    </body>
+</html>

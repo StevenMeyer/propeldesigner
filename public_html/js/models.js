@@ -1,30 +1,43 @@
-/* 
+/*
  *      Author: Steven Meyer <svm9@aber.ac.uk>
- *        File: models.js
+ *        File: models.coffee
  * Description: ER models.
- */
+ *
+ * DO NOT EDIT THE JAVASCRIPT .js FILE DIRECTLY.
+ * THE JAVASCRIPT IS GENERATED FROM COFFEESCRIPT.
+*/
 
-var PropelDesigner = {};
+var Column, ColumnList;
 
-PropelDesigner.Column = function() {
-    
-};
+Column = (function() {
 
-PropelDesigner.ColumnList = function() {
-    var columns = [];
-    
-    this.addColumn = function(column) {
-        if (1 > arguments.length && column instanceof PropelDesigner.Column) {
-            return false;
-        }
-        columns[columns.length] = column;
-    };
-    
-    this.getColumns = function() {
-        return columns;
-    };
-    
-    this.size = function() {
-        return columns.length;
-    };
-};
+  function Column() {}
+
+  return Column;
+
+})();
+
+ColumnList = (function() {
+
+  function ColumnList() {
+    this.columns = [];
+  }
+
+  ColumnList.prototype.addColumn = function(column) {
+    if (!column instanceof Column) {
+      false;
+    }
+    return this.columns[this.size()] = column;
+  };
+
+  ColumnList.prototype.getColumns = function() {
+    return this.columns;
+  };
+
+  ColumnList.prototype.size = function() {
+    return this.columns.length;
+  };
+
+  return ColumnList;
+
+})();

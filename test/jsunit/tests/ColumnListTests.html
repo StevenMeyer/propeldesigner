@@ -12,40 +12,46 @@
             
 
             function testInitialCollectionIsEmpty() {
-                var columnList = new PropelDesigner.ColumnList();
+                var columnList = new ColumnList();
                 assertEquals("List of columns should have 0 entries", 0, columnList.size());
             }
             
             function testAddOneColumnToCollection() {
-                var columnList = new PropelDesigner.ColumnList();
-                columnList.addColumn(new PropelDesigner.Column());
+                var columnList = new ColumnList();
+                columnList.addColumn(new Column());
                 assertEquals("List of columns should contain 1 entry", 1, columnList.size());
             }
             
+            function testPrivateVars() {
+                var columnList = new ColumnList();
+                assertEquals("New list should be empty", 0, columnList.size());
+            }
+            
             function testAddTwoColumnsToCollection() {
-                var columnList = new PropelDesigner.ColumnList();
-                columnList.addColumn(new PropelDesigner.Column());
-                columnList.addColumn(new PropelDesigner.Column());
+                var columnList = new ColumnList();
+                columnList.addColumn(new Column());
+                columnList.addColumn(new Column());
                 assertEquals("List of columns should contain two entries", 2, columnList.size());
             }
             
             function testRetriveColumnsFromCollection() {
-                var columnList = new PropelDesigner.ColumnList(),
-                    column1 = new PropelDesigner.Column(),
-                    column2 = new PropelDesigner.Column(),
-                    collection = new Array(column1, column2);
+                var columnList = new ColumnList(),
+                    column1 = new Column(),
+                    column2 = new Column(),
+                    collection;
                 
                 columnList.addColumn(column1);
                 columnList.addColumn(column2);
-                assertEquals("Retrieved collection should contain both columns", column1, columnList.getColumns()[0]);
-                assertEquals("Retrieved collection should contain both columns", column2, columnList.getColumns()[1]);
+                collection = columnList.getColumns();
+                assertEquals("Retrieved collection should contain both columns", column1, collection[0]);
+                assertEquals("Retrieved collection should contain both columns", column2, collection[1]);
             }
             
             function testAddAbitraryNumberOfColumns() {
-                var columnList = new PropelDesigner.ColumnList(),
-                    column1 = new PropelDesigner.Column(),
-                    column2 = new PropelDesigner.Column(),
-                    column3 = new PropelDesigner.Column(),
+                var columnList = new ColumnList(),
+                    column1 = new Column(),
+                    column2 = new Column(),
+                    column3 = new Column(),
                     retrieved;
             
                 columnList.addColumn(column1);

@@ -18,7 +18,7 @@
             
             function testAddOneColumnToCollection() {
                 var columnList = new ColumnList();
-                columnList.addColumn(new Column());
+                columnList.addColumn(new Column("test"));
                 assertEquals("List of columns should contain 1 entry", 1, columnList.size());
             }
             
@@ -29,15 +29,15 @@
             
             function testAddTwoColumnsToCollection() {
                 var columnList = new ColumnList();
-                columnList.addColumn(new Column());
-                columnList.addColumn(new Column());
+                columnList.addColumn(new Column("test1"));
+                columnList.addColumn(new Column("test2"));
                 assertEquals("List of columns should contain two entries", 2, columnList.size());
             }
             
             function testRetriveColumnsFromCollection() {
                 var columnList = new ColumnList(),
-                    column1 = new Column(),
-                    column2 = new Column(),
+                    column1 = new Column("test1"),
+                    column2 = new Column("test2"),
                     collection;
                 
                 columnList.addColumn(column1);
@@ -49,9 +49,9 @@
             
             function testAddAbitraryNumberOfColumns() {
                 var columnList = new ColumnList(),
-                    column1 = new Column(),
-                    column2 = new Column(),
-                    column3 = new Column(),
+                    column1 = new Column("test1"),
+                    column2 = new Column("test2"),
+                    column3 = new Column("test3"),
                     retrieved;
             
                 columnList.addColumn(column1);

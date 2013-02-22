@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>ColumnTests</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css" />
+        <script type="text/javascript" src="../app/jsUnitCore.js"></script>
+        <script type="text/javascript" src="../../../public_html/js/models.js"></script>
+        <script language="JavaScript">
+            // STORY: Add columns to a table.
+            // TASK: Make a Column model for Propel columns.
+            
+            function testColumnNameRequired() {
+                var column;
+                try {
+                    column = new Column();
+                } catch (ex) {
+                }
+                assertFalse("A Column cannot be instantiated without a name", column instanceof Column);
+                
+                column = new Column("foo");
+                try {
+                    column.setName("");
+                } catch (ex) {
+                }
+                assertEquals("A column should have a name", "foo", column.getName());
+            }
+            
+            function testDefaultAttributes() {
+                var column = new Column("foo");
+                assertEquals("Columns should have default values (primaryKey)", false, column.isPrimaryKey());
+                assertEquals("Columns should have default values (required)", false, column.isRequired());
+                assertEquals("Columns should have default values (type)", Column.PropelType.VARCHAR, column.getType());
+                assertEquals("Columns should have default values (autoIncrement)", false, column.isAutoIncrement());
+                assertEquals("Columns should have default values (lazyLoad)", false, column.isAutoIncrement());
+                assertEquals("Columns should have default values (primaryString)", false, column.isPrimaryString());
+                assertEquals("Columns should have default values (inheritance)", Column.Inheritance.FALSE, column.hasInheritance());
+            }
+            
+            function testChangeDefaultAttributeValues() {
+                var column = new Column("foo");
+                column.setPrimaryKey(true);
+                assertEquals("Column should have default value changed (primaryKey)", true, column.isPrimaryKey());
+                column.setRequired(true);
+                assertEquals("Columns should have default value changed (required)", true, column.isRequired());
+                column.setType(column.PropelTypes.INTEGER());
+                assertEquals("Columns should have default value changed (type)", Column.PropelType.INTEGER, column.getType());
+                column.setAutoIncrement(true);
+                assertEquals("Columns should have default value changed (autoIncrement)", true, column.isAutoIncrement());
+                column.setLazyLoad(true);
+                assertEquals("Columns should have default value changed (lazyLoad)", true, column.isAutoIncrement());
+                column.setPrimaryString(true);
+                assertEquals("Columns should have default value changed (primaryString)", true, column.isPrimaryString());
+                column.setInheritance("single");
+                assertEquals("Columns should have default value changed (inheritance)", Column.Inheritance.SINGLE, column.hasInheritance());
+            }
+        </script>
+    </head>
+    <body>
+        <p>Test Page for Columns.</p>
+    </body>
+</html>

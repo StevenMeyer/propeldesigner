@@ -11,25 +11,25 @@
             // TASK: Make a Table and Database model.
             
             function testNewDatabaseIsEmpty() {
-                var database = new Database();
+                var database = new Database("test", Database.IdMethod.NATIVE);
                 assertEquals("New database should have no tables", 0, database.getTables().length);
             }
             
             function testAddOneTable() {
-                var database = new Database();
+                var database = new Database("test", Database.IdMethod.NATIVE);
                 database.addTable(new Table());
                 assertEquals("Database should contain one table", 1, database.getTables().length);
             }
             
             function testAddTwoTables() {
-                var database = new Database();
+                var database = new Database("test", Database.IdMethod.NATIVE);
                 database.addTable(new Table());
                 database.addTable(new Table());
                 assertEquals("Database should contain two tables", 2, database.getTables().length);
             }
             
             function testRetrieveTables() {
-                var database = new Database(),
+                var database = new Database("test", Database.IdMethod.NATIVE),
                     table = new Table(),
                     tables;
             
@@ -39,7 +39,7 @@
             }
             
             function testRemoveTable() {
-                var database = new Database(),
+                var database = new Database("test", Database.IdMethod.NATIVE),
                     table = new Table();
                 database.addTable(table);
                 assertEquals("Database should contain one table", 1, database.getTables().length);
@@ -48,7 +48,7 @@
             }
             
             function testRemoveTableWithMultipleTablesInDatabase() {
-                var database = new Database(),
+                var database = new Database("test", Database.IdMethod.NATIVE),
                     table1 = new Table(),
                     table2 = new Table(),
                     table3 = new Table();
@@ -62,7 +62,7 @@
             }
             
             function testRemoveTableDoesntAffectOtherTables() {
-                var database = new Database(),
+                var database = new Database("test", Database.IdMethod.NATIVE),
                     table1 = new Table(),
                     table2 = new Table(),
                     table3 = new Table();
@@ -77,7 +77,7 @@
             }
             
             function testTablesStayInOrder() {
-                var database = new Database(),
+                var database = new Database("test", Database.IdMethod.NATIVE),
                     table1 = new Table(),
                     table2 = new Table(),
                     table3 = new Table(),
@@ -102,6 +102,17 @@
                     database.getTables()[1] === table3 &&
                     database.getTables()[2] === table2 &&
                     database.getTables()[3] === table1);
+            }
+            
+            function testDatabaseDefaultValues() {
+                var database = new Database("test", Database.IdMethod.NATIVE);
+                assertEquals("Default value for defaultPhpNamingMethod should be underscore", Database.PhpNamingMethod.UNDERSCORE, database.getDefaultPhpNamingMethod());
+            }
+            
+            function testDefaultValuesCanBeChanged() {
+                var database = new Database("test", Database.IdMethod.NATIVE);
+                database.setDefaultPhpNamingMethod(Database.PhpNamingMethod.CLEAN);
+                assertEquals("Default value of defaultPhpNamingMethod should be changeable", Database.PhpNamingMethod.CLEAN, database.getDefaultPhpNamingMethod());
             }
         </script>
     </head>

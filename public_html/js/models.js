@@ -19,17 +19,17 @@ LinkedList = (function() {
   LinkedListItem = (function() {
 
     function LinkedListItem(item) {
-      var next, _item;
+      var _item, _next;
       _item = item;
-      next = null;
+      _next = null;
       this.getItem = function() {
         return _item;
       };
       this.getNext = function() {
-        return next;
+        return _next;
       };
       this.setNext = function(linkedListItem) {
-        return next = linkedListItem;
+        return _next = linkedListItem;
       };
     }
 
@@ -410,21 +410,172 @@ Table = (function() {
 
 Database = (function() {
 
-  function Database() {
-    var tables;
-    tables = new LinkedList();
+  Database.PhpNamingMethod = {
+    CLEAN: "clean",
+    NOCHANGE: "nochange",
+    PHPNAME: "phpname",
+    UNDERSCORE: "underscore",
+    toArray: function() {
+      var method, _results;
+      _results = [];
+      for (method in this) {
+        if (method !== "toArray") {
+          _results.push(this[method]);
+        }
+      }
+      return _results;
+    }
+  };
+
+  Database.IdMethod = {
+    NATIVE: "native",
+    NONE: "none",
+    toArray: function() {
+      var method, _results;
+      _results = [];
+      for (method in this) {
+        if (method !== "toArray") {
+          _results.push(this[method]);
+        }
+      }
+      return _results;
+    }
+  };
+
+  function Database(name, defaultIdMethod) {
+    var _baseClass, _basePeer, _defaultIdMethod, _defaultPhpNamingMethod, _heavyIndexing, _name, _namespace, _package, _schema, _tablePrefix, _tables;
+    _baseClass = null;
+    _basePeer = null;
+    _defaultIdMethod = null;
+    _defaultPhpNamingMethod = Database.PhpNamingMethod.UNDERSCORE;
+    _heavyIndexing = null;
+    _name = null;
+    _namespace = null;
+    _package = null;
+    _schema = null;
+    _tablePrefix = null;
+    _tables = new LinkedList();
+    if (!String.prototype.trim) {
+      String.prototype.trim = function() {
+        return this.replace(/^\s+|\s+$/g, '');
+      };
+    }
     this.addTable = function(table) {
-      return tables.addItem(table);
+      return _tables.addItem(table);
     };
     this.addTableBefore = function(table, before) {
-      return tables.addItem(table, before);
+      return _tables.addItem(table, before);
+    };
+    this.getBaseClass = function() {
+      return _baseClass;
+    };
+    this.getBasePeer = function() {
+      return _basePeer;
+    };
+    this.getDefaultIdMethod = function() {
+      return _defaultIdMethod;
+    };
+    this.getDefaultPhpNamingMethod = function() {
+      return _defaultPhpNamingMethod;
+    };
+    this.getHeavyIndexing = function() {
+      return _heavyIndexing;
+    };
+    this.getName = function() {
+      return _name;
+    };
+    this.getNamespace = function() {
+      return _namespace;
+    };
+    this.getPackage = function() {
+      return _package;
+    };
+    this.getSchema = function() {
+      return _schema;
+    };
+    this.getTablePrefix = function() {
+      return _prefix;
     };
     this.getTables = function() {
-      return tables.getItems();
+      return _tables.getItems();
     };
     this.removeTable = function(table) {
-      return tables.removeItem(table);
+      return _tables.removeItem(table);
     };
+    this.setBaseClass = function(baseClass) {
+      if (typeof baseClass === "string") {
+        baseClass = baseClass.trim();
+      }
+      return _baseClass = baseClass ? baseClass : null;
+    };
+    this.setBasePeer = function(basePeer) {
+      if (typeof basePeer === "string") {
+        basePeer = basePeer.trim();
+      }
+      return _basePeer = basePeer ? basePeer : null;
+    };
+    this.setDefaultIdMethod = function(method) {
+      return _defaultIdMethod = (function() {
+        if (__indexOf.call(Database.IdMethod.toArray(), method) >= 0) {
+          return method;
+        } else {
+          throw "Database must have a default ID method";
+        }
+      })();
+    };
+    this.setDefaultPhpNamingMethod = function(method) {
+      if (method == null) {
+        method = Database.PhpNamingMethod.UNDERSCORE;
+      }
+      return _defaultPhpNamingMethod = __indexOf.call(Database.PhpNamingMethod.toArray(), method) >= 0 ? method : Database.PhpNamingMethod.UNDERSCORE;
+    };
+    this.setHeavyIndexing = function(indexing) {
+      var _heavingIndexing;
+      if (indexing) {
+        return _heavyIndexing = true;
+      } else if (indexing === false) {
+        return _heavingIndexing = false;
+      } else {
+        return _heavyIndexing = null;
+      }
+    };
+    this.setName = function(name) {
+      if (typeof name === "string") {
+        name = name.trim();
+      }
+      return _name = (function() {
+        if (name) {
+          return name;
+        } else {
+          throw "Database must have a name";
+        }
+      })();
+    };
+    this.setNamespace = function(namespace) {
+      if (typeof namespace === "string") {
+        namespace = namespace.trim();
+      }
+      return _namespace = namespace ? namespace : null;
+    };
+    this.setPackage = function(thepackage) {
+      var _ref;
+      thepackage = (thepackage.trim() === (_ref = typeof thepacking) && _ref === "string");
+      return _package = thepackage ? thepackage : null;
+    };
+    this.setSchema = function(schema) {
+      if (typeof schema === "string") {
+        schema = schema.trim();
+      }
+      return _schema = schema ? schema : null;
+    };
+    this.setTablePrefix = function(prefix) {
+      if (typeof schema === "string") {
+        prefix = prefix.trim();
+      }
+      return _tablePrefix = prefix ? prefix : null;
+    };
+    this.setDefaultIdMethod(defaultIdMethod);
+    this.setName(name);
   }
 
   return Database;

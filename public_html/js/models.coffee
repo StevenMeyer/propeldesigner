@@ -12,16 +12,16 @@ class LinkedList
   class LinkedListItem
     constructor: (item) ->
       _item = item
-      next = null
+      _next = null
 
       @getItem = () ->
         _item
 
       @getNext = () ->
-        next
+        _next
 
       @setNext = (linkedListItem) ->
-        next = linkedListItem
+        _next = linkedListItem
   ### End of internal class ###
         
   constructor: () ->
@@ -262,17 +262,111 @@ class ColumnList
 class Table
     
 class Database
-  constructor: () ->
-    tables = new LinkedList()
+  @PhpNamingMethod =
+    CLEAN:      "clean"
+    NOCHANGE:   "nochange"
+    PHPNAME:    "phpname"
+    UNDERSCORE: "underscore"
+    toArray:    () ->
+      this[method] for method of this when method isnt "toArray"
+      
+  @IdMethod =
+    NATIVE:  "native"
+    NONE:    "none"
+    toArray: () ->
+      this[method] for method of this when method isnt "toArray"
+      
+  constructor: (name, defaultIdMethod) ->
+    _baseClass = null
+    _basePeer = null
+    _defaultIdMethod = null
+    _defaultPhpNamingMethod = Database.PhpNamingMethod.UNDERSCORE
+    _heavyIndexing = null
+    _name = null
+    _namespace = null
+    _package = null
+    _schema = null
+    _tablePrefix = null
+    _tables = new LinkedList()
+    
+    if not String::trim
+      String::trim = () ->
+        this.replace(/^\s+|\s+$/g, '')
+    
     @addTable = (table) ->
-      tables.addItem table
+      _tables.addItem table
       
     @addTableBefore = (table, before) ->
-      tables.addItem(table, before)
+      _tables.addItem(table, before)
+      
+    @getBaseClass = () -> _baseClass
+    
+    @getBasePeer = () -> _basePeer
+      
+    @getDefaultIdMethod = () -> _defaultIdMethod
+    
+    @getDefaultPhpNamingMethod = () -> _defaultPhpNamingMethod
+    
+    @getHeavyIndexing = () -> _heavyIndexing
+      
+    @getName = () -> _name
+    
+    @getNamespace = () -> _namespace
+    
+    @getPackage = () -> _package
+    
+    @getSchema = () -> _schema
+    
+    @getTablePrefix = () -> _prefix
       
     @getTables = () ->
-      tables.getItems()
+      _tables.getItems()
       
     @removeTable = (table) ->
-      tables.removeItem(table)
+      _tables.removeItem(table)
+      
+    @setBaseClass = (baseClass) ->
+      baseClass = baseClass.trim() if typeof baseClass is "string"
+      _baseClass = if baseClass then baseClass else null
+      
+    @setBasePeer = (basePeer) ->
+      basePeer = basePeer.trim() if typeof basePeer is "string"
+      _basePeer = if basePeer then basePeer else null
+      
+    @setDefaultIdMethod = (method) ->
+      _defaultIdMethod = if method in Database.IdMethod.toArray() then method else throw "Database must have a default ID method"
+      
+    @setDefaultPhpNamingMethod = (method = Database.PhpNamingMethod.UNDERSCORE) ->
+      _defaultPhpNamingMethod = if method in Database.PhpNamingMethod.toArray() then method else Database.PhpNamingMethod.UNDERSCORE
+      
+    @setHeavyIndexing = (indexing) ->
+      if indexing
+        _heavyIndexing = true
+      else if indexing is false
+        _heavingIndexing = false
+      else
+        _heavyIndexing = null
+      
+    @setName = (name) ->
+      name = name.trim() if typeof name is "string"
+      _name = if name then name else throw "Database must have a name"
+      
+    @setNamespace = (namespace) ->
+      namespace = namespace.trim() if typeof namespace is "string"
+      _namespace = if namespace then namespace else null
+      
+    @setPackage = (thepackage) ->
+      thepackage = thepackage.trim() is typeof thepacking is "string"
+      _package = if thepackage then thepackage else null
+      
+    @setSchema = (schema) ->
+      schema = schema.trim() if typeof schema is "string"
+      _schema = if schema then schema else null
+      
+    @setTablePrefix = (prefix) ->
+      prefix = prefix.trim() if typeof schema is "string"
+      _tablePrefix = if prefix then prefix else null
+      
+    @setDefaultIdMethod defaultIdMethod
+    @setName name
  

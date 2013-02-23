@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>TableTests</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css" />
+        <script type="text/javascript" src="../app/jsUnitCore.js"></script>
+        <script type="text/javascript" src="../../../public_html/js/models.js"></script>
+        <script type="text/javascript">
+            // STORY: Add tables to a database.
+            // TASK: Make a Table and Database model.
+            
+            function testNewDatabaseIsEmpty() {
+                var database = new Database();
+                assertEquals("New database should have no tables", 0, database.getTables().length);
+            }
+        </script>
+    </head>
+    <body>
+        <p>Test Page for Tables.</p>
+    </body>
+</html>

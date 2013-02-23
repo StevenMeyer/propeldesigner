@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>DatabaseTests</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css" />
+        <script type="text/javascript" src="../app/jsUnitCore.js"></script>
+        <script type="text/javascript" src="../../../public_html/js/models.js"></script>
+        <script type="text/javascript">
+            // STORY: Add tables to a database.
+            // TASK: Make a Table and Database model.
+            
+            function testNewDatabaseIsEmpty() {
+                var database = new Database();
+                assertEquals("New database should have no tables", 0, database.getTables().length);
+            }
+            
+            function testAddOneTable() {
+                var database = new Database();
+                database.addTable(new Table());
+                assertEquals("Database should contain one table", 1, database.getTables().length);
+            }
+            
+            function testAddTwoTables() {
+                var database = new Database();
+                database.addTable(new Table());
+                database.addTable(new Table());
+                assertEquals("Database should contain two tables", 2, database.getTables().length);
+            }
+            
+            function testRetrieveTables() {
+                var database = new Database(),
+                    table = new Table(),
+                    tables;
+            
+                database.addTable(table);
+                tables = database.getTables();
+                assertEquals("Retrieved table should be inserted table", table, tables[0]);
+            }
+            
+            function testRemoveTable() {
+                var database = new Database(),
+                    table = new Table();
+                database.addTable(table);
+                assertEquals("Database should contain one table", 1, database.getTables().length);
+                database.removeTable(table);
+                assertEquals("Database should be empty after removing the only table", 0, database.getTables().length);
+            }
+            
+            function testRemoveTableWithMultipleTablesInDatabase() {
+                var database = new Database(),
+                    table1 = new Table(),
+                    table2 = new Table(),
+                    table3 = new Table();
+            
+                database.addTable(table1);
+                database.addTable(table2);
+                database.addTable(table3);
+                assertEquals("Database should contain three tables", 3, database.getTables().length);
+                database.removeTable(table2);
+                assertEquals("Database should contain two table", 2, database.getTables().length);
+            }
+            
+            function testRemoveTableDoesntAffectOtherTables() {
+                var database = new Database(),
+                    table1 = new Table(),
+                    table2 = new Table(),
+                    table3 = new Table();
+            
+                database.addTable(table1);
+                database.addTable(table2);
+                database.addTable(table3);
+                assertEquals("Database should contain three tables", 3, database.getTables().length);
+                database.removeTable(table2);
+                assertEquals("Database should contain two table", 2, database.getTables().length);
+                assertTrue("Database should contain the first table", database.getTables()[0] === table1 && database.getTables()[1] === table3);
+            }
+            
+            function testTablesStayInOrder() {
+                var database = new Database(),
+                    table1 = new Table(),
+                    table2 = new Table(),
+                    table3 = new Table(),
+                    table4 = new Table();
+            
+                database.addTable(table2);
+                database.addTable(table4);
+                database.addTable(table3);
+                database.addTable(table1);
+                
+                assertTrue("Database tables should be in order of insertion",
+                    database.getTables()[0] === table2 &&
+                    database.getTables()[1] === table4 &&
+                    database.getTables()[2] === table3 &&
+                    database.getTables()[3] === table1);
+            
+                database.removeTable(table2);
+                database.addTableBefore(table2, table1);
+                
+                assertTrue("Database tables should be in given order",
+                    database.getTables()[0] === table4 &&
+                    database.getTables()[1] === table3 &&
+                    database.getTables()[2] === table2 &&
+                    database.getTables()[3] === table1);
+            }
+        </script>
+    </head>
+    <body>
+        <p>Test Page for Database.</p>
+    </body>
+</html>

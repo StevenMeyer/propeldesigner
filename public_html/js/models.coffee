@@ -7,6 +7,71 @@
  * THE JAVASCRIPT IS GENERATED FROM COFFEESCRIPT.
 ###
 
+class LinkedList
+  ### Internal class ###
+  class LinkedListItem
+    constructor: (item) ->
+      _item = item
+      next = null
+
+      @getItem = () ->
+        _item
+
+      @getNext = () ->
+        next
+
+      @setNext = (linkedListItem) ->
+        next = linkedListItem
+  ### End of internal class ###
+        
+  constructor: () ->
+    head = null
+    
+    @addItem = (item, before) ->
+      newItem = new LinkedListItem item
+      if not head
+        head = newItem
+      else if not before
+        # add to end of list
+        previous = null
+        while current = (if current then current.getNext() else head)
+          do () -> previous = current
+        previous.setNext newItem
+      else
+        if before is head.getItem
+          # new head
+          newItem.setNext head
+          head = newItem
+        else
+          # somewhere in the tail
+          previous = head
+          while current = (if current then current.getNext() else head.getNext())
+            do () ->
+              if before is current.getItem()
+                newItem.setNext current
+                previous.setNext newItem
+              else
+                previous = current
+          if not current # reached the end of the list without finding "before"
+            previous.setNext newItem
+              
+    @getItems = () ->
+      while item = (if item then item.getNext() else head)
+        item.getItem()
+        
+    @removeItem = (item) ->
+      if not head then return false
+      else if item is head.getItem()
+        head = head.getNext()
+        item
+      else if not head.getNext() then item
+      else
+        previous = head
+        while current = (if current then current.getNext() else head.getNext())
+          do () ->
+            if current.getItem() is item then previous.setNext current.getNext()
+        item
+
 class Column
   @Inheritance =
     FALSE:   false
@@ -193,4 +258,21 @@ class ColumnList
       
   size: () ->
     @getColumns().length
+    
+class Table
+    
+class Database
+  constructor: () ->
+    tables = new LinkedList()
+    @addTable = (table) ->
+      tables.addItem table
+      
+    @addTableBefore = (table, before) ->
+      tables.addItem(table, before)
+      
+    @getTables = () ->
+      tables.getItems()
+      
+    @removeTable = (table) ->
+      tables.removeItem(table)
  

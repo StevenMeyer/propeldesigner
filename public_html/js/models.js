@@ -7,8 +7,112 @@
  * THE JAVASCRIPT IS GENERATED FROM COFFEESCRIPT.
 */
 
-var Column, ColumnList,
+var Column, ColumnList, Database, LinkedList, Table,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+LinkedList = (function() {
+  /* Internal class
+  */
+
+  var LinkedListItem;
+
+  LinkedListItem = (function() {
+
+    function LinkedListItem(item) {
+      var next, _item;
+      _item = item;
+      next = null;
+      this.getItem = function() {
+        return _item;
+      };
+      this.getNext = function() {
+        return next;
+      };
+      this.setNext = function(linkedListItem) {
+        return next = linkedListItem;
+      };
+    }
+
+    return LinkedListItem;
+
+  })();
+
+  /* End of internal class
+  */
+
+
+  function LinkedList() {
+    var head;
+    head = null;
+    this.addItem = function(item, before) {
+      var current, newItem, previous;
+      newItem = new LinkedListItem(item);
+      if (!head) {
+        return head = newItem;
+      } else if (!before) {
+        previous = null;
+        while (current = (current ? current.getNext() : head)) {
+          (function() {
+            return previous = current;
+          })();
+        }
+        return previous.setNext(newItem);
+      } else {
+        if (before === head.getItem) {
+          newItem.setNext(head);
+          return head = newItem;
+        } else {
+          previous = head;
+          while (current = (current ? current.getNext() : head.getNext())) {
+            (function() {
+              if (before === current.getItem()) {
+                newItem.setNext(current);
+                return previous.setNext(newItem);
+              } else {
+                return previous = current;
+              }
+            })();
+          }
+          if (!current) {
+            return previous.setNext(newItem);
+          }
+        }
+      }
+    };
+    this.getItems = function() {
+      var item, _results;
+      _results = [];
+      while (item = (item ? item.getNext() : head)) {
+        _results.push(item.getItem());
+      }
+      return _results;
+    };
+    this.removeItem = function(item) {
+      var current, previous;
+      if (!head) {
+        return false;
+      } else if (item === head.getItem()) {
+        head = head.getNext();
+        return item;
+      } else if (!head.getNext()) {
+        return item;
+      } else {
+        previous = head;
+        while (current = (current ? current.getNext() : head.getNext())) {
+          (function() {
+            if (current.getItem() === item) {
+              return previous.setNext(current.getNext());
+            }
+          })();
+        }
+        return item;
+      }
+    };
+  }
+
+  return LinkedList;
+
+})();
 
 Column = (function() {
 
@@ -293,5 +397,36 @@ ColumnList = (function() {
   };
 
   return ColumnList;
+
+})();
+
+Table = (function() {
+
+  function Table() {}
+
+  return Table;
+
+})();
+
+Database = (function() {
+
+  function Database() {
+    var tables;
+    tables = new LinkedList();
+    this.addTable = function(table) {
+      return tables.addItem(table);
+    };
+    this.addTableBefore = function(table, before) {
+      return tables.addItem(table, before);
+    };
+    this.getTables = function() {
+      return tables.getItems();
+    };
+    this.removeTable = function(table) {
+      return tables.removeItem(table);
+    };
+  }
+
+  return Database;
 
 })();

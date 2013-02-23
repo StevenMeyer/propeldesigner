@@ -76,7 +76,7 @@ class Column
       
     @getDescription = () -> _description
       
-    @getInheritance = () -> _inheritance
+    @getInheritanceType = () -> _inheritance
       
     @getName = () -> _name
       
@@ -120,7 +120,7 @@ class Column
     @setDescription = (description) -> 
       _description = if description then description else null
       
-    @setInheritance = (type) ->
+    @setInheritanceType = (type) ->
       _inheritance = if type in Column.Inheritance.toArray() then type else Column.Inheritance.FALSE
     
     @setLazyLoad = (bool = true) ->
@@ -167,11 +167,11 @@ class Column
       _sqlType = if type then type else null
       
     @setType = (type = @PropelType.VARCHAR) ->
-      _type = if type in Column.PropelType.toArray then type else Column.PropelType.VARCHAR
+      _type = if type in Column.PropelType.toArray() then type else Column.PropelType.VARCHAR
     
     @setValueSet = (array) ->
       if array
-        if not array instanceof Array then array = [ array ]
+        if array not instanceof Array then array = [ array ]
         _valueSet = array
       else
         _valueSet = []
@@ -183,12 +183,14 @@ class ColumnList
     columns = []
     
     @addColumn = (column) ->
-      false if not column instanceof Column
-      @columns[@size()] = column
+      if column in columns or column not instanceof Column
+        false
+      else
+        columns[@size()] = column
     
     @getColumns = () ->
-      @columns
+      columns
       
   size: () ->
-    @getColumns.length
+    @getColumns().length
  

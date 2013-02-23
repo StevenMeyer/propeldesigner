@@ -63,6 +63,17 @@
                 assertEquals("Retrieved collection should contain all columns", column2, retrieved[1]);
                 assertEquals("Retrieved collection should contain all columns", column3, retrieved[2]);
             }
+            
+            function testCannotAddColumnMultipleTimes() {
+                var columnList = new ColumnList(),
+                    column = new Column("test"),
+                    sizeBefore;
+            
+                columnList.addColumn(column);
+                sizeBefore = columnList.size();
+                columnList.addColumn(column);
+                assertEquals("Column size should not change after adding a duplicate column", sizeBefore, columnList.size());
+            }
         </script>
     </head>
     <body>

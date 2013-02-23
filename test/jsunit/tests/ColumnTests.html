@@ -34,7 +34,7 @@
                 assertEquals("Columns should have default values (autoIncrement)", false, column.isAutoIncrement());
                 assertEquals("Columns should have default values (lazyLoad)", false, column.isAutoIncrement());
                 assertEquals("Columns should have default values (primaryString)", false, column.isPrimaryString());
-                assertEquals("Columns should have default values (inheritance)", Column.Inheritance.FALSE, column.hasInheritance());
+                assertEquals("Columns should have default values (inheritance)", Column.Inheritance.FALSE, column.getInheritanceType());
             }
             
             function testChangeDefaultAttributeValues() {
@@ -43,7 +43,7 @@
                 assertEquals("Column should have default value changed (primaryKey)", true, column.isPrimaryKey());
                 column.setRequired(true);
                 assertEquals("Columns should have default value changed (required)", true, column.isRequired());
-                column.setType(column.PropelTypes.INTEGER());
+                column.setType(Column.PropelType.INTEGER);
                 assertEquals("Columns should have default value changed (type)", Column.PropelType.INTEGER, column.getType());
                 column.setAutoIncrement(true);
                 assertEquals("Columns should have default value changed (autoIncrement)", true, column.isAutoIncrement());
@@ -51,8 +51,8 @@
                 assertEquals("Columns should have default value changed (lazyLoad)", true, column.isAutoIncrement());
                 column.setPrimaryString(true);
                 assertEquals("Columns should have default value changed (primaryString)", true, column.isPrimaryString());
-                column.setInheritance("single");
-                assertEquals("Columns should have default value changed (inheritance)", Column.Inheritance.SINGLE, column.hasInheritance());
+                column.setInheritanceType(Column.Inheritance.SINGLE);
+                assertEquals("Columns should have default value changed (inheritance)", Column.Inheritance.SINGLE, column.getInheritanceType());
             }
         </script>
     </head>

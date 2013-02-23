@@ -111,7 +111,7 @@ Column = (function() {
     this.getDescription = function() {
       return _description;
     };
-    this.getInheritance = function() {
+    this.getInheritanceType = function() {
       return _inheritance;
     };
     this.getName = function() {
@@ -174,7 +174,7 @@ Column = (function() {
     this.setDescription = function(description) {
       return _description = description ? description : null;
     };
-    this.setInheritance = function(type) {
+    this.setInheritanceType = function(type) {
       return _inheritance = __indexOf.call(Column.Inheritance.toArray(), type) >= 0 ? type : Column.Inheritance.FALSE;
     };
     this.setLazyLoad = function(bool) {
@@ -252,11 +252,11 @@ Column = (function() {
       if (type == null) {
         type = this.PropelType.VARCHAR;
       }
-      return _type = __indexOf.call(Column.PropelType.toArray, type) >= 0 ? type : Column.PropelType.VARCHAR;
+      return _type = __indexOf.call(Column.PropelType.toArray(), type) >= 0 ? type : Column.PropelType.VARCHAR;
     };
     this.setValueSet = function(array) {
       if (array) {
-        if (!array instanceof Array) {
+        if (!(array instanceof Array)) {
           array = [array];
         }
         return _valueSet = array;
@@ -277,18 +277,19 @@ ColumnList = (function() {
     var columns;
     columns = [];
     this.addColumn = function(column) {
-      if (!column instanceof Column) {
-        false;
+      if (__indexOf.call(columns, column) >= 0 || !(column instanceof Column)) {
+        return false;
+      } else {
+        return columns[this.size()] = column;
       }
-      return this.columns[this.size()] = column;
     };
     this.getColumns = function() {
-      return this.columns;
+      return columns;
     };
   }
 
   ColumnList.prototype.size = function() {
-    return this.getColumns.length;
+    return this.getColumns().length;
   };
 
   return ColumnList;

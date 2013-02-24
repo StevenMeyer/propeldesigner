@@ -17,20 +17,20 @@
             
             function testAddOneTable() {
                 var database = new Database("test", Database.IdMethod.NATIVE);
-                database.addTable(new Table());
+                database.addTable(new Table("table1"));
                 assertEquals("Database should contain one table", 1, database.getTables().length);
             }
             
             function testAddTwoTables() {
                 var database = new Database("test", Database.IdMethod.NATIVE);
-                database.addTable(new Table());
-                database.addTable(new Table());
+                database.addTable(new Table("table1"));
+                database.addTable(new Table("table2"));
                 assertEquals("Database should contain two tables", 2, database.getTables().length);
             }
             
             function testRetrieveTables() {
                 var database = new Database("test", Database.IdMethod.NATIVE),
-                    table = new Table(),
+                    table = new Table("table1"),
                     tables;
             
                 database.addTable(table);
@@ -40,7 +40,7 @@
             
             function testRemoveTable() {
                 var database = new Database("test", Database.IdMethod.NATIVE),
-                    table = new Table();
+                    table = new Table("table1");
                 database.addTable(table);
                 assertEquals("Database should contain one table", 1, database.getTables().length);
                 database.removeTable(table);
@@ -49,9 +49,9 @@
             
             function testRemoveTableWithMultipleTablesInDatabase() {
                 var database = new Database("test", Database.IdMethod.NATIVE),
-                    table1 = new Table(),
-                    table2 = new Table(),
-                    table3 = new Table();
+                    table1 = new Table("table1"),
+                    table2 = new Table("table2"),
+                    table3 = new Table("table3");
             
                 database.addTable(table1);
                 database.addTable(table2);
@@ -63,9 +63,9 @@
             
             function testRemoveTableDoesntAffectOtherTables() {
                 var database = new Database("test", Database.IdMethod.NATIVE),
-                    table1 = new Table(),
-                    table2 = new Table(),
-                    table3 = new Table();
+                    table1 = new Table("table1"),
+                    table2 = new Table("table2"),
+                    table3 = new Table("table3");
             
                 database.addTable(table1);
                 database.addTable(table2);
@@ -78,10 +78,10 @@
             
             function testTablesStayInOrder() {
                 var database = new Database("test", Database.IdMethod.NATIVE),
-                    table1 = new Table(),
-                    table2 = new Table(),
-                    table3 = new Table(),
-                    table4 = new Table();
+                    table1 = new Table("table1"),
+                    table2 = new Table("table2"),
+                    table3 = new Table("table3"),
+                    table4 = new Table("table4");
             
                 database.addTable(table2);
                 database.addTable(table4);

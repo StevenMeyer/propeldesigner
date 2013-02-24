@@ -7,12 +7,113 @@
         <script type="text/javascript" src="../app/jsUnitCore.js"></script>
         <script type="text/javascript" src="../../../public_html/js/models.js"></script>
         <script type="text/javascript">
-            // STORY: Add tables to a database.
-            // TASK: Make a Table and Database model.
+            // STORY: Add columns to a table.
             
-            function testNewDatabaseIsEmpty() {
-                var database = new Database();
-                assertEquals("New database should have no tables", 0, database.getTables().length);
+            function testNewTableHasNoColumns() {
+                var table = new Table("test");
+                assertEquals("New database should have no tables", 0, table.getColumns().length);
+            }
+            
+            function testAddOneColumn() {
+                var table = new Table("test");
+                table.addColumn(new Column("column1"));
+                assertEquals("Table should have one column", 1, table.getColumns().length);
+            }
+            
+            function testAddTwoColumns() {
+                var table = new Table("test");
+                table.addColumn(new Column("column1"));
+                table.addColumn(new Column("column2"));
+                assertEquals("Table should have two column", 2, table.getColumns().length);
+            }
+            
+            function testRetrieveColumns() {
+                var table = new Table("test"),
+                    column = new Column("column1");
+                
+                table.addColumn(column);
+                assertEquals("Should be able to retrieve an added column", column, table.getColumns()[0]);
+            }
+            
+            function testRemoveColumn() {
+                var table = new Table("test"),
+                    column = new Column("column1");
+                
+                table.addColumn(column);
+                table.removeColumn(column);
+                assertEquals("Table should have no columns after removing the only column", 0, table.getColumns().length);
+            }
+            
+            function testRemoveColumnWithMultipleColumnsInTable() {
+                var table = new Table("test"),
+                    column1 = new Column("column1"),
+                    column2 = new Column("column2"),
+                    column3 = new Column("column3");
+            
+                table.addColumn(column1);
+                table.addColumn(column2);
+                table.addColumn(column3);
+                assertEquals("Table should contain three columns", 3, table.getColumns().length);
+                table.removeColumn(column2);
+                assertEquals("Database should contain two columns", 2, table.getColumns().length);
+            }
+            
+            
+            
+            function testRemoveColumnDoesntAffectOtherColumns() {
+                var table = new Table("test"),
+                    column1 = new Column("column1"),
+                    column2 = new Column("column2"),
+                    column3 = new Column("column3");
+            
+                table.addColumn(column1);
+                table.addColumn(column2);
+                table.addColumn(column3);
+                assertEquals("Table should contain three columns", 3, table.getColumns().length);
+                table.removeColumn(column2);
+                assertEquals("Table should contain two column", 2, table.getColumns().length);
+                assertTrue("Table should contain the first column", table.getColumns()[0] === column1 && table.getColumns()[1] === column3);
+            }
+            
+            function testColumnsStayInOrder() {
+                var table = new Table("test"),
+                    column1 = new Column("column1"),
+                    column2 = new Column("column2"),
+                    column3 = new Column("column3"),
+                    column4 = new Column("column4");
+            
+                table.addColumn(column2);
+                table.addColumn(column4);
+                table.addColumn(column3);
+                table.addColumn(column1);
+                
+                assertTrue("Table columns should be in order of insertion",
+                    table.getColumns()[0] === column2 &&
+                    table.getColumns()[1] === column4 &&
+                    table.getColumns()[2] === column3 &&
+                    table.getColumns()[3] === column1);
+            
+                table.removeColumn(column2);
+                table.addColumnBefore(column2, column1);
+                
+                assertTrue("Table columns should be in given order",
+                    table.getColumns()[0] === column4 &&
+                    table.getColumns()[1] === column3 &&
+                    table.getColumns()[2] === column2 &&
+                    table.getColumns()[3] === column1);
+            }
+            
+            function testNewTableHasNoForeignKeys() {
+                var table = new Table("test");
+                assertEquals("New table should have no foreign keys", 0, table.getForeignKeys().length);
+            }
+            
+            function testAddOneForeignKey() {
+                var table1 = new Table("table1"),
+                    table2 = new Table("table2");
+                
+                table1.addForeignKey(new ForeignKey(table2));
+                assertEquals("Table should have one foreign key", 1, table1.getForeignKeys().length);
             }
         </script>
     </head>

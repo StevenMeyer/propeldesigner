@@ -7,7 +7,7 @@
  * THE JAVASCRIPT IS GENERATED FROM COFFEESCRIPT.
 */
 
-var Column, Database, ForeignKey, LinkedList, Reference, Table,
+var Column, Database, ForeignKey, Index, LinkedList, Reference, Table, UniqueIndex,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 LinkedList = (function() {
@@ -509,7 +509,7 @@ ForeignKey = (function() {
     this.isSkipSql = function() {
       return _skipSql;
     };
-    this.removeRelation = function(localColumn, foreignColumn) {
+    this.removeReference = function(localColumn, foreignColumn) {
       var counter, reference, removed, _fn, _i, _len;
       removed = false;
       _fn = function(reference, counter) {
@@ -593,9 +593,26 @@ ForeignKey = (function() {
       }
       return _skipSql = bool ? true : false;
     };
+    this.setForeignTable(foreignTable);
   }
 
   return ForeignKey;
+
+})();
+
+Index = (function() {
+
+  function Index() {}
+
+  return Index;
+
+})();
+
+UniqueIndex = (function() {
+
+  function UniqueIndex() {}
+
+  return UniqueIndex;
 
 })();
 
@@ -649,7 +666,7 @@ Table = (function() {
   };
 
   function Table(name) {
-    var _abstract, _allowPkInsert, _baseClass, _basePeer, _columns, _description, _foreignKeys, _heavyIndexing, _idMethod, _isCrossRef, _name, _namespace, _package, _phpName, _phpNamingMethod, _readOnly, _reloadOnInsert, _reloadOnUpdate, _schema, _skipSql, _treeMode;
+    var _abstract, _allowPkInsert, _baseClass, _basePeer, _columns, _description, _foreignKeys, _heavyIndexing, _idMethod, _indices, _isCrossRef, _name, _namespace, _package, _phpName, _phpNamingMethod, _readOnly, _reloadOnInsert, _reloadOnUpdate, _schema, _skipSql, _treeMode, _uniqueIndices;
     _abstract = false;
     _allowPkInsert = false;
     _baseClass = null;
@@ -659,6 +676,7 @@ Table = (function() {
     _heavyIndexing = false;
     _foreignKeys = new LinkedList();
     _idMethod = Table.IdMethod.NONE;
+    _indices = new LinkedList();
     _isCrossRef = false;
     _name = null;
     _namespace = null;
@@ -671,6 +689,7 @@ Table = (function() {
     _schema = null;
     _skipSql = false;
     _treeMode = null;
+    _uniqueIndices = new LinkedList();
     if (!String.prototype.trim) {
       String.prototype.trim = function() {
         return this.replace(/^\s+|\s+$/g, '');
@@ -691,7 +710,25 @@ Table = (function() {
       }
     };
     this.addForeignKey = function(foreignKey) {
-      return _foreignKeys.addItem(foreignKey);
+      if (foreignKey instanceof ForeignKey) {
+        return _foreignKeys.addItem(foreignKey);
+      } else {
+        return false;
+      }
+    };
+    this.addIndex = function(index) {
+      if (index instanceof Index) {
+        return _indices.addItem(index);
+      } else {
+        return false;
+      }
+    };
+    this.addUniqueIndex = function(uniqueIndex) {
+      if (uniqueIndex instanceof UniqueIndex) {
+        return _uniqueIndices.addItem(uniqueIndex);
+      } else {
+        return false;
+      }
     };
     this.allowPkInsert = function() {
       return _allowPkInsert;
@@ -713,6 +750,12 @@ Table = (function() {
     };
     this.getForeignKeys = function() {
       return _foreignKeys.getItems();
+    };
+    this.getIndices = function() {
+      return _indices.getItems();
+    };
+    this.getUniqueIndices = function() {
+      return _uniqueIndices.getItems();
     };
     this.getName = function() {
       return _name;
@@ -759,6 +802,27 @@ Table = (function() {
     this.removeColumn = function(column) {
       if (column instanceof Column) {
         return _columns.removeItem(column);
+      } else {
+        return false;
+      }
+    };
+    this.removeForeignKey = function(foreignKey) {
+      if (foreignKey instanceof ForeignKey) {
+        return _foreignKeys.removeItem(foreignKey);
+      } else {
+        return false;
+      }
+    };
+    this.removeIndex = function(index) {
+      if (index instanceof Index) {
+        return _indices.removeItem(index);
+      } else {
+        return false;
+      }
+    };
+    this.removeUniqueIndex = function(uniqueIndex) {
+      if (uniqueIndex instanceof UniqueIndex) {
+        return _uniqueIndices.removeItem(uniqueIndex);
       } else {
         return false;
       }

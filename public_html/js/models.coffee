@@ -309,7 +309,7 @@ class ForeignKey
     
     @isSkipSql = () -> _skipSql
     
-    @removeRelation = (localColumn, foreignColumn) ->
+    @removeReference = (localColumn, foreignColumn) ->
       removed = false
       for reference, counter in _references
         do (reference, counter) ->
@@ -367,6 +367,10 @@ class ForeignKey
       
     @setForeignTable(foreignTable)
     
+class Index
+
+class UniqueIndex
+    
 class Table
   @IdMethod =
     NATIVE:  "native"
@@ -398,6 +402,7 @@ class Table
     _heavyIndexing = false
     _foreignKeys = new LinkedList()
     _idMethod = Table.IdMethod.NONE
+    _indices = new LinkedList()
     _isCrossRef = false
     _name = null
     _namespace = null
@@ -410,6 +415,7 @@ class Table
     _schema = null
     _skipSql = false
     _treeMode = null
+    _uniqueIndices = new LinkedList()
     
     if not String::trim
       String::trim = () ->
@@ -427,7 +433,23 @@ class Table
       else
         false
         
-    @addForeignKey = (foreignKey) -> _foreignKeys.addItem(foreignKey)
+    @addForeignKey = (foreignKey) ->
+      if foreignKey instanceof ForeignKey
+        _foreignKeys.addItem(foreignKey)
+      else
+        false
+        
+    @addIndex = (index) ->
+      if index instanceof Index
+        _indices.addItem(index)
+      else
+        false
+        
+    @addUniqueIndex = (uniqueIndex) ->
+      if uniqueIndex instanceof UniqueIndex
+        _uniqueIndices.addItem(uniqueIndex)
+      else
+        false
     
     @allowPkInsert = () -> _allowPkInsert
     
@@ -442,6 +464,10 @@ class Table
     @getColumns = () -> _columns.getItems()
     
     @getForeignKeys = () -> _foreignKeys.getItems()
+    
+    @getIndices = () -> _indices.getItems()
+    
+    @getUniqueIndices = () -> _uniqueIndices.getItems()
     
     @getName = () -> _name
     
@@ -475,6 +501,24 @@ class Table
       if column instanceof Column
         _columns.removeItem(column)
       else false
+      
+    @removeForeignKey = (foreignKey) ->
+      if foreignKey instanceof ForeignKey
+        _foreignKeys.removeItem(foreignKey)
+      else
+        false
+        
+    @removeIndex = (index) ->
+      if index instanceof Index
+        _indices.removeItem(index)
+      else
+        false
+        
+    @removeUniqueIndex = (uniqueIndex) ->
+      if uniqueIndex instanceof UniqueIndex
+        _uniqueIndices.removeItem(uniqueIndex)
+      else
+        false
       
     @setAbstract = (bool = true) ->
       _abstract = if bool then true else false

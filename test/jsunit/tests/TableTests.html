@@ -58,8 +58,6 @@
                 assertEquals("Database should contain two columns", 2, table.getColumns().length);
             }
             
-            
-            
             function testRemoveColumnDoesntAffectOtherColumns() {
                 var table = new Table("test"),
                     column1 = new Column("column1"),
@@ -114,6 +112,149 @@
                 
                 table1.addForeignKey(new ForeignKey(table2));
                 assertEquals("Table should have one foreign key", 1, table1.getForeignKeys().length);
+            }
+            
+            function testAddTwoForeignKeys() {
+                var table1 = new Table("table1"),
+                    table2 = new Table("table2"),
+                    table3 = new Table("table3");
+            
+                table1.addForeignKey(new ForeignKey(table2));
+                table1.addForeignKey(new ForeignKey(table3));
+                assertEquals("Table should have two foreign keys", 2, table1.getForeignKeys().length)
+            }
+            
+            function testRetrieveForeignKey() {
+                 var table1 = new Table("table1"),
+                    table2 = new Table("table2"),
+                    foreignKey = new ForeignKey(table2);
+                
+                table1.addForeignKey(foreignKey);
+                assertEquals("Table should have one foreign key", 1, table1.getForeignKeys().length);
+                assertEquals("Retrieved foreign key should equal added key", table1.getForeignKeys()[0], foreignKey);
+            }
+            
+            function testRemoveForeignKey() {
+                var table1 = new Table("table1"),
+                    table2 = new Table("table2"),
+                    foreignKey = new ForeignKey(table2);
+                
+                table1.addForeignKey(foreignKey);
+                assertEquals("Table should have one foreign key", 1, table1.getForeignKeys().length);
+                table1.removeForeignKey(foreignKey);
+                assertEquals("Table should have no foreign keys", 0, table1.getForeignKeys().length);
+            }
+            
+            function testRemoveForeignKeyWithMultipleKeys() {
+                var table1 = new Table("table1"),
+                    table2 = new Table("table2"),
+                    table3 = new Table("table3"),
+                    foreignKey1 = new ForeignKey(table2),
+                    foreignKey2 = new ForeignKey(table3);
+                
+                table1.addForeignKey(foreignKey1);
+                table1.addForeignKey(foreignKey2)
+                assertEquals("Table should have two foreign keys", 2, table1.getForeignKeys().length);
+                table1.removeForeignKey(foreignKey1);
+                assertEquals("Table should have one foreign key", 1, table1.getForeignKeys().length);
+            }
+            
+            function testNewTableHasNoIndices() {
+                var table = new Table("table1");
+                
+                assertEquals("New table should have no indices", 0, table.getIndices().length);
+            }
+            
+            function testAddOneIndex() {
+                var table = new Table("table1");
+                
+                table.addIndex(new Index());
+                assertEquals("Table should have one index", 1, table.getIndices().length);
+            }
+            
+            function testAddTwoIndices() {
+                var table = new Table("table1");
+                
+                table.addIndex(new Index());
+                table.addIndex(new Index());
+                assertEquals("Table should have two indices", 2, table.getIndices().length);
+            }
+            
+            function testRetrieveIndex() {
+                var table = new Table("table1"),
+                    index = new Index();
+                
+                table.addIndex(index);
+                assertEquals("Eetrieved index should equal stored index", table.getIndices()[0], index);
+            }
+            
+            function testRemoveIndex() {
+                var table = new Table("table1"),
+                    index = new Index();
+                
+                table.addIndex(index);
+                table.removeIndex(index);
+                assertEquals("Table should have no indices", 0, table.getIndices().length);
+            }
+            
+            function testRemoveIndexFromMultipleIndices() {
+                var table = new Table("table1"),
+                    index1 = new Index(),
+                    index2 = new Index();
+                
+                table.addIndex(index1);
+                table.addIndex(index2);
+                table.removeIndex(index1);
+                assertEquals("Table should have one index", 1, table.getIndices().length);
+            }
+            
+            function testNewTableHasNoUniqueIndices() {
+                var table = new Table("table1");
+                
+                assertEquals("New table should have no uniqueIndices", 0, table.getUniqueIndices().length);
+            }
+            
+            function testAddOneUniqueIndex() {
+                var table = new Table("table1");
+                
+                table.addUniqueIndex(new UniqueIndex());
+                assertEquals("Table should have one uniqueIndex", 1, table.getUniqueIndices().length);
+            }
+            
+            function testAddTwoUniqueIndices() {
+                var table = new Table("table1");
+                
+                table.addUniqueIndex(new UniqueIndex());
+                table.addUniqueIndex(new UniqueIndex());
+                assertEquals("Table should have two uniqueIndices", 2, table.getUniqueIndices().length);
+            }
+            
+            function testRetrieveUniqueIndex() {
+                var table = new Table("table1"),
+                    uniqueIndex = new UniqueIndex();
+                
+                table.addUniqueIndex(uniqueIndex);
+                assertEquals("Eetrieved uniqueIndex should equal stored uniqueIndex", table.getUniqueIndices()[0], uniqueIndex);
+            }
+            
+            function testRemoveUniqueIndex() {
+                var table = new Table("table1"),
+                    uniqueIndex = new UniqueIndex();
+                
+                table.addUniqueIndex(uniqueIndex);
+                table.removeUniqueIndex(uniqueIndex);
+                assertEquals("Table should have no uniqueIndices", 0, table.getUniqueIndices().length);
+            }
+            
+            function testRemoveUniqueIndexFromMultipleUniqueIndices() {
+                var table = new Table("table1"),
+                    uniqueIndex1 = new UniqueIndex(),
+                    uniqueIndex2 = new UniqueIndex();
+                
+                table.addUniqueIndex(uniqueIndex1);
+                table.addUniqueIndex(uniqueIndex2);
+                table.removeUniqueIndex(uniqueIndex1);
+                assertEquals("Table should have one uniqueIndex", 1, table.getUniqueIndices().length);
             }
         </script>
     </head>

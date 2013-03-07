@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>ColumnTests</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css" />
+        <script type="text/javascript" src="../app/jsUnitCore.js"></script>
+        <script type="text/javascript" src="../../../public_html/js/vendor/jquery-1.9.1.min.js"></script>
+        <script type="text/javascript" src="../../../public_html/js/models.js"></script>
+        <script type="text/javascript" src="../../../public_html/js/canvas.js"></script>
+    </head>
+    <body>
+        <p>Test Page for Columns.</p>
+        <svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="100%" width="100%" id="canvas"></svg>
+        <script language="JavaScript">
+            // STORY: Add tables to the schema.
+            // TASK: Click on the canvas to add a table.
+            var svg = $("svg:first");
+            svg.propelCanvas();
+            function testNewCanvasIsEmpty() {
+                assertEquals("New canvas should be empty", 0, svg.children().length);
+            }
+            
+            function testAddOneTable() {
+                svg.propelCanvas("addTable", new Table("test"));
+                assertEquals("Canvas should have one table", 1, $("svg rect.table").length);
+            }
+            
+            function testAddTwoTables() {
+                svg.empty();
+                svg.propelCanvas("addTable", new Table("test1"));
+                svg.propelCanvas("addTable", new Table("test2"));
+                assertEquals("Canvas should have two tables", 2, $("svg rect.table").length);
+            }
+            
+            function testTableHasTableName() {
+                svg.empty();
+                svg.propelCanvas("addTable", new Table("test"));
+                assertEquals("Table should show table name", "test", $("svg text").text());
+            }
+            
+            function testTableHasActualTableName() {
+                svg.empty();
+                svg.propelCanvas("addTable", new Table("test1"));
+                svg.propelCanvas("addTable", new Table("test2"));
+                assertEquals("Table should have a text part with 'test1'", "test1", $("svg text:first").text());
+                assertEquals("Table should have a text part with 'test2'", "test2", $("svg text:last").text());
+            }
+            
+            
+        </script>
+    </body>
+</html>

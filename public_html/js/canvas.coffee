@@ -42,6 +42,7 @@ jQuery.fn.extend
           x:      0
           y:      0
         g = privateFunctions.createSvgElement "g"
+        svg.append g
 
         rect = privateFunctions.createSvgElement "rect"
         rect.attr
@@ -56,11 +57,15 @@ jQuery.fn.extend
         tableName.text table.getName()
         tableName.attr
           class: "tablename"
-          y: 20
+          id: table.getName() + "-tablename"
         g.append tableName
         
-        svg.append g
         $this.append svg
+        console.log document.getElementById(table.getName() + "-tablename").clientWidth
+        
+        tableName.attr
+          x: settings.defaultDimensions.table.width / 2 - tableName.prop("clientWidth") / 2
+          y: tableName.prop "clientHeight"
         
       init: (options) ->
         $this = $ this

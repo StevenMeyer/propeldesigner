@@ -15,6 +15,35 @@ jQuery.fn.extend({
   propelCanvas: function(method) {
     var args, privateFunctions, publicFunctions;
     privateFunctions = {
+      addData: function() {
+        var arg, extend, pluginName, _i, _len,
+          _this = this;
+        if (!this.data()) {
+          return $.error("Element cannot store data");
+        } else {
+          pluginName = publicFunctions.plugin.info("name");
+          extend = function() {
+            return _this.data(pluginName, $.extend(_this.data(pluginName), arg));
+          };
+          for (_i = 0, _len = arguments.length; _i < _len; _i++) {
+            arg = arguments[_i];
+            extend(arg);
+          }
+          return this.data(pluginName);
+        }
+      },
+      checkContext: function(tagName, className) {
+        var $this, classes, wild, _tagname;
+        $this = $(this) || null;
+        _tagname = $this && $this.prop("tagName") ? $this.prop("tagName") : null;
+        _tagname = _tagname.toLowerCase();
+        if (_tagname !== tagName || (className && !$this.prop("classList").contains(className))) {
+          wild = "*";
+          classes = $this && $this.attr("class") ? $this.attr("class") : "";
+          $.error("Function expected a " + tagName + "." + (className ? className : wild) + ", got " + _tagname + "." + classes);
+        }
+        return $this;
+      },
       createSvgElement: function(tagName) {
         var elem, svgns;
         svgns = "http://www.w3.org/2000/svg";
@@ -36,17 +65,24 @@ jQuery.fn.extend({
       }
     };
     publicFunctions = {
+      addColumn: function(column, table) {
+        var $this;
+        if (table == null) {
+          table = this;
+        }
+        $this = privateFunctions.checkContext.call(table, "svg", "table");
+        if (!(column instanceof Column) || !column.getName()) {
+          return $.error("A column must be used with addColumn()");
+        }
+      },
       addTable: function(table) {
-        var $this, g, rect, settings, svg, tableName, tagname;
-        $this = $(this) || null;
-        tagname = $this && $this.prop("tagName") ? $this.prop("tagName") : null;
-        tagname = tagname.toLowerCase();
-        if (tagname !== "svg") {
-          throw "AddTable should be in the context of an SVG";
-        }
+        var $this, database, g, rect, settings, svg, tableName;
+        $this = privateFunctions.checkContext.call(this, "svg", "canvas");
         if (!(table instanceof Table) || !table.getName()) {
-          throw "A table must be used with addTable()";
+          $.error("A table must be used with addTable()");
         }
+        database = privateFunctions.getData.call($this, "database");
+        database.addTable(table);
         settings = privateFunctions.getData.call($this, "settings");
         svg = privateFunctions.createSvgElement("svg");
         svg.attr({
@@ -56,6 +92,10 @@ jQuery.fn.extend({
           x: 0,
           y: 0
         });
+        privateFunctions.addData.call(svg, {
+          table: table
+        });
+        $this.append(svg);
         g = privateFunctions.createSvgElement("g");
         svg.append(g);
         rect = privateFunctions.createSvgElement("rect");
@@ -70,20 +110,26 @@ jQuery.fn.extend({
         tableName = privateFunctions.createSvgElement("text");
         tableName.text(table.getName());
         tableName.attr({
-          "class": "tablename",
-          id: table.getName() + "-tablename"
+          "class": "tablename"
         });
         g.append(tableName);
-        $this.append(svg);
-        console.log(document.getElementById(table.getName() + "-tablename").clientWidth);
         return tableName.attr({
           x: settings.defaultDimensions.table.width / 2 - tableName.prop("clientWidth") / 2,
           y: tableName.prop("clientHeight")
         });
       },
+      destroy: function() {
+        var $this;
+        $this = $(this);
+        $this.removeData(publicFunctions.plugin.info("name"));
+        return $this.empty();
+      },
       init: function(options) {
         var $this, pluginName, settings;
         $this = $(this);
+        if (!$this.prop("classList").contains("canvas")) {
+          $this.prop("classList").add("canvas");
+        }
         pluginName = publicFunctions.plugin.info("name");
         settings = {
           defaultDimensions: {
@@ -95,9 +141,10 @@ jQuery.fn.extend({
           svg: $this
         };
         settings = $.extend(settings, options);
-        return $this.data(pluginName, $.extend($this.data(pluginName), {
-          settings: settings
-        }));
+        return privateFunctions.addData.call($this, {
+          settings: settings,
+          database: new Database("myDatabase", Database.IdMethod.NATIVE)
+        });
       },
       plugin: (function() {
         var vars;
@@ -117,7 +164,7 @@ jQuery.fn.extend({
       if (publicFunctions[method]) {
         return publicFunctions[method].apply(this, Array.prototype.slice.call(args, 1));
       } else if (typeof method === "object" || !method) {
-        return publicFunctions.init.apply(this, arguments);
+        return publicFunctions.init.apply(this, args);
       } else {
         $.error("No such method " + method + " in propelCanvas");
         return null;

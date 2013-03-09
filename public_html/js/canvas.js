@@ -33,11 +33,16 @@ jQuery.fn.extend({
         }
       },
       checkContext: function(tagName, className) {
-        var $this, classes, wild, _tagname;
+        var $this, classes, hasClass, wild, _tagname;
         $this = $(this) || null;
         _tagname = $this && $this.prop("tagName") ? $this.prop("tagName") : null;
         _tagname = _tagname.toLowerCase();
-        if (_tagname !== tagName || (className && !$this.prop("classList").contains(className))) {
+        if ($this.prop("classList" !== null)) {
+          hasClass = $this.prop("classList").contains(className);
+        } else {
+          hasClass = this.className.baseVal.indexOf(className !== -1);
+        }
+        if (_tagname !== tagName || (className && !hasClass)) {
           wild = "*";
           classes = $this && $this.attr("class") ? $this.attr("class") : "";
           $.error("Function expected a " + tagName + "." + (className ? className : wild) + ", got " + _tagname + "." + classes);
@@ -108,14 +113,12 @@ jQuery.fn.extend({
         });
         g.append(rect);
         tableName = privateFunctions.createSvgElement("text");
-        tableName.text(table.getName());
-        tableName.attr({
-          "class": "tablename"
-        });
         g.append(tableName);
+        tableName.text(table.getName());
         return tableName.attr({
-          x: settings.defaultDimensions.table.width / 2 - tableName.prop("clientWidth") / 2,
-          y: tableName.prop("clientHeight")
+          "class": "tablename",
+          x: settings.defaultDimensions.table.width / 2 - tableName.get(0).getBBox().width / 2,
+          y: tableName.get(0).getBBox().height
         });
       },
       destroy: function() {
@@ -127,8 +130,14 @@ jQuery.fn.extend({
       init: function(options) {
         var $this, pluginName, settings;
         $this = $(this);
-        if (!$this.prop("classList").contains("canvas")) {
-          $this.prop("classList").add("canvas");
+        if ($this.prop("classList" !== null)) {
+          if ($this.prop("classList").contains("canvas")) {
+            $this.prop("classList").add("canvas");
+          }
+        } else {
+          if (this.className.baseVal.lastIndexOf("canvas" === -1)) {
+            this.className.baseVal = this.className.baseVal + " canvas";
+          }
         }
         pluginName = publicFunctions.plugin.info("name");
         settings = {

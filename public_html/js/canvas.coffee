@@ -17,8 +17,6 @@ jQuery.fn.extend
           $.error "Element cannot store data"
         else
           pluginName = publicFunctions.plugin.info "name"
-          #$this.data pluginName,
-          #$.extend $this.data(pluginName), settings: settings, database: new Database "myDatabase", Database.IdMethod.NATIVE
           extend = () =>
             this.data pluginName,
               $.extend this.data(pluginName), arg
@@ -30,7 +28,11 @@ jQuery.fn.extend
         $this = $(this) or null
         _tagname = if $this and $this.prop "tagName" then $this.prop "tagName" else null
         _tagname = _tagname.toLowerCase()
-        if _tagname isnt tagName or (className and not $this.prop("classList").contains className)
+        if $this.prop "classList" isnt null
+          hasClass = $this.prop("classList").contains className
+        else #IE
+          hasClass = this.className.baseVal.indexOf className isnt -1
+        if _tagname isnt tagName or (className and not hasClass)
           wild = "*"
           classes = if $this and $this.attr "class" then $this.attr "class" else ""
           $.error "Function expected a #{tagName}.#{if className then className else wild}, got #{_tagname}.#{classes}"
@@ -85,13 +87,12 @@ jQuery.fn.extend
         g.append rect
         
         tableName = privateFunctions.createSvgElement "text"
+        g.append tableName
         tableName.text table.getName()
         tableName.attr
           class: "tablename"
-        g.append tableName
-        tableName.attr
-          x: settings.defaultDimensions.table.width / 2 - tableName.prop("clientWidth") / 2
-          y: tableName.prop "clientHeight"
+          x: settings.defaultDimensions.table.width / 2 - tableName.get(0).getBBox().width / 2
+          y: tableName.get(0).getBBox().height
           
       destroy: () ->
         $this = $ this
@@ -100,7 +101,10 @@ jQuery.fn.extend
         
       init: (options) ->
         $this = $ this
-        if not $this.prop("classList").contains "canvas" then $this.prop("classList").add "canvas"
+        if $this.prop "classList" isnt null
+          if $this.prop("classList").contains "canvas" then $this.prop("classList").add "canvas"
+        else # IE
+          if this.className.baseVal.lastIndexOf "canvas" is -1 then this.className.baseVal = this.className.baseVal + " canvas"
         pluginName = publicFunctions.plugin.info "name"
         settings =
           defaultDimensions:

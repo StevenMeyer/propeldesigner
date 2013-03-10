@@ -67,7 +67,7 @@
                         font-family: Helvetica, sans-serif;
                         font-size: 12pt;
                     }
-                    rect.table {
+                    rect.table-rect {
                         fill: rgb(0, 0, 200);
                         stroke-width: 1;
                         stroke: rgb(0, 0, 0);
@@ -94,6 +94,7 @@
             var svg = $("#canvas");
             svg.propelCanvas();
             svg.propelCanvas("addTable", new Table("test"));
+            svg.propelCanvas("addColumn", new Column("col1"), "test");
         </script>
 
         <script>

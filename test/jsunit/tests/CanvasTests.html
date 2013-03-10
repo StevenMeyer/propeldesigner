@@ -26,7 +26,7 @@
                 svg.propelCanvas("destroy");
                 svg.propelCanvas();
                 svg.propelCanvas("addTable", new Table("test"));
-                assertEquals("Canvas should have one table", 1, $("svg rect.table").length);
+                assertEquals("Canvas should have one table", 1, $("svg.table-svg").length);
             }
             
             function testAddTwoTables() {
@@ -34,14 +34,14 @@
                 svg.propelCanvas();
                 svg.propelCanvas("addTable", new Table("test1"));
                 svg.propelCanvas("addTable", new Table("test2"));
-                assertEquals("Canvas should have two tables", 2, $("svg rect.table").length);
+                assertEquals("Canvas should have two tables", 2, $("svg.table-svg").length);
             }
             
             function testTableHasTableName() {
                 svg.propelCanvas("destroy");
                 svg.propelCanvas();
                 svg.propelCanvas("addTable", new Table("test"));
-                assertEquals("Table should show table name", "test", $("svg text").text());
+                assertEquals("Table should show table name", "test", $("svg text.table-name").text());
             }
             
             function testTableHasActualTableName() {
@@ -49,8 +49,8 @@
                 svg.propelCanvas();
                 svg.propelCanvas("addTable", new Table("test1"));
                 svg.propelCanvas("addTable", new Table("test2"));
-                assertEquals("Table should have a text part with 'test1'", "test1", $("svg text:first").text());
-                assertEquals("Table should have a text part with 'test2'", "test2", $("svg text:last").text());
+                assertEquals("Table should have a text part with 'test1'", "test1", $("svg.table-svg:first text.table-name").text());
+                assertEquals("Table should have a text part with 'test2'", "test2", $("svg.table-svg:last text.table-name").text());
             }
             
             function testTableObjectStored() {
@@ -61,7 +61,7 @@
                 svg.propelCanvas();
                 svg.propelCanvas("addTable", table);
                 databaseObj = $("svg").data(plugin).database
-                tableObj = $("svg#test").data(plugin).table
+                tableObj = $("svg#test-svg").data(plugin).table
                 assertTrue("Table object should be in the controller", -1 < $.inArray(table, databaseObj.getTables()));
                 assertEquals("Table object should be in the table SVG", table, tableObj);
             }
@@ -69,14 +69,55 @@
             function testNewTableHasNoColumns() {
                 svg.empty();
                 svg.propelCanvas("addTable", new Table("test"));
-                assertEquals("Table should have no columns", 0, $("svg svg text.column").length);
+                assertEquals("Table should have no columns", 0, $("svg text.column").length);
             }
             
             function testAddOneColumn() {
                 svg.empty();
                 svg.propelCanvas("addTable", new Table("test"));
                 svg.propelCanvas("addColumn", new Column("col1"), "test");
-                assertEquals("Table should have a column", 1, $("svg svg text.column").length);
+                assertEquals("Table should have a column", 1, $("svg text.column-name").length);
+            }
+            
+            function testAddTwoColumns() {
+                svg.propelCanvas("destroy");
+                svg.propelCanvas();
+                svg.propelCanvas("addTable", new Table("test"));
+                svg.propelCanvas("addColumn", new Column("column1"), "test");
+                svg.propelCanvas("addColumn", new Column("column2"), "test");
+                assertEquals("Table should have two columns", 2, $("svg text.column-name").length);
+            }
+            
+            function testColumnHasColumnName() {
+                svg.propelCanvas("destroy");
+                svg.propelCanvas();
+                svg.propelCanvas("addTable", new Table("test"));
+                svg.propelCanvas("addColumn", new Column("column1"), "test");
+                assertEquals("Column should show column name", "column1", $("svg text.column-name").text());
+            }
+            
+            function testColumnHasActualColumnName() {
+                svg.propelCanvas("destroy");
+                svg.propelCanvas();
+                svg.propelCanvas("addTable", new Table("test"));
+                svg.propelCanvas("addColumn", new Column("testCol1"), "test");
+                svg.propelCanvas("addColumn", new Column("testCol2"), "test");
+                assertEquals("Column should have a text part with 'testCol1'", "testCol1", $("svg text.column-name:first").text());
+                assertEquals("Column should have a text part with 'testCol2'", "testCol2", $("svg text.column-name:last").text());
+            }
+            
+            function testColumnObjectStored() {
+                var column = new Column("test"),
+                    tableObj,
+                    columnObj;
+                svg.propelCanvas("destroy");
+                svg.propelCanvas();
+                svg.propelCanvas("addTable", new Table("testTable"));
+                svg.propelCanvas("addColumn", column, "testTable");
+                tableObj = $("svg.table-svg").data(plugin).table;
+                columnObj = $("svg#testTable-test-svg").data(plugin).column;
+                assertTrue("Column object should be in the table SVG's data", -1 < $.inArray(column, tableObj.getColumns()));
+                assertEquals("Column object should be in the column SVG", column, columnObj);
             }
         </script>
     </body>

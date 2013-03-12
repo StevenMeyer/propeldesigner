@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>BuilderTests</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css" />
+        <script type="text/javascript" src="../app/jsUnitCore.js"></script>
+        <script type="text/javascript" src="../../../public_html/js/vendor/jquery-1.9.1.min.js"></script>
+        <script type="text/javascript" src="../../../public_html/js/models.js"></script>
+    </head>
+    <body>
+        <p>Test Page for the Builder.</p>
+        <script type="text/javascript" src="../../../public_html/js/builder.js"></script>
+        <script language="JavaScript">
+            function testCreateDatabaseObject() {
+                var xml = "<database name='testDb' defaultIdMethod='native' />",
+                    database = Builder.buildFromXML(xml);
+                assertTrue("Database object should exist", database instanceof Database);
+            }
+            function testDatabaseHasRequiredAttributes() {
+                var xml = "<database name='testDb' defaultIdMethod='native' />",
+                    database = Builder.buildFromXML(xml);
+                assertEquals("Database should have given name", "testDb", database.getName());
+                assertEquals("Database should have given default ID method", Database.IdMethod.NATIVE, database.getDefaultIdMethod());
+            }
+            
+            function testCreateTableObject() {
+                var xml = "<database name='testDb' defaultIdMethod='native'><table name='testTable' /></database>",
+                    database = Builder.buildFromXML(xml);
+                assertEquals("Database should have one table", 1, database.getTables().length);
+            }
+            function testTableHasName() {
+                var xml = "<database name='testDb' defaultIdMethod='native'><table name='testTable' /></database>",
+                    database = Builder.buildFromXML(xml);
+                assertEquals("Table should have the given name", "testTable", database.getTables()[0].getName());
+            }
+            
+            function testCreateColumnObject() {
+                var xml = "<database name='testDb' defaultIdMethod='native'><table name='testTable'><column name='testColumn' /></table></database>",
+                    database = Builder.buildFromXML(xml);
+                assertEquals("Table should have one column", 1, database.getTables()[0].getColumns().length);
+            }
+        </script>
+    </body>
+</html>

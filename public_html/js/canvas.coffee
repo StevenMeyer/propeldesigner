@@ -26,8 +26,7 @@ jQuery.fn.extend
           
       checkContext: (tagName, className) ->
         $this = if this instanceof jQuery then this else $ this
-        _tagname = if $this and $this.prop "tagName" then $this.prop "tagName" else null
-        _tagname = _tagname.toLowerCase()
+        _tagname = if $this and $this.prop "tagName" then $this.prop("tagName").toLowerCase() else null
         if _tagname isnt tagName or (className and not privateFunctions.svgHasClass.call $this, className)
           wild = "*"
           classes = if $this and $this.attr "class" then $this.attr "class" else ""
@@ -39,6 +38,11 @@ jQuery.fn.extend
         elem = document.createElementNS svgns, tagName
         $ elem
         
+      getColumnContentWidth: () ->
+        $this = privateFunctions.checkContext.call this, "svg", "column-svg"
+        $name = $this.find "g.column-g > text.column-name"
+        privateFunctions.getNum $name.get(0).getBBox().width
+        
       getData: (property) ->
         $this = if this instanceof jQuery then this else $ this
         if not $this.data()
@@ -47,13 +51,109 @@ jQuery.fn.extend
           data = $this.data publicFunctions.plugin.info "name"
           if data[property] then data[property] else $.error "No data property " + property
           
-      redraw: () ->
-        $table = privateFunctions.checkContext.call this, "svg", "table-svg"
-        settings = privateFunctions.getData.call (privateFunctions.getData.call $table, "root"), "settings"
-        tableRect = $table.find "g > rect:first"
-        tableName = $table.find "g > text:first"
-        columnsSvg = $table.find "g > svg[id$='-columns-svg']"
+      getNum: (value) ->
+        parseInt +value or 0, 10
           
+      redraw: () ->
+        $this = privateFunctions.checkContext.call this, "svg"
+        settings = privateFunctions.getData.call $("svg.#{publicFunctions.plugin.info "name"}"), "settings"
+        if privateFunctions.svgHasClass.call this, "column-svg"
+          privateFunctions.redrawColumn.call this, settings, 0
+        else if privateFunctions.svgHasClass.call this, "columns-svg"
+          privateFunctions.redrawColumns.call this, settings
+        else if privateFunctions.svgHasClass.call this, "table-svg"
+          privateFunctions.redrawTable.call this, settings
+        
+      redrawColumn: (settings, currentMaxWidth, bubble = true) ->
+        $this = privateFunctions.checkContext.call this, "svg", "column-svg"
+        $boundingRect = $this.find "g.column-g rect.column-brect"
+        $rect = $this.find "g.column-g rect.column-rect"
+        $name = $this.find "g.column-g text.column-name"
+        nameBBox = $name.get(0).getBBox()
+        currentMaxWidth = privateFunctions.getNum currentMaxWidth
+        margin = privateFunctions.getNum settings.defaultDimensions.column.margin
+        padding = privateFunctions.getNum settings.defaultDimensions.column.padding
+        contentWidth = privateFunctions.getColumnContentWidth.call $this
+        
+        if not currentMaxWidth
+          currentMaxWidth = privateFunctions.getNum settings.defaultDimensions.column.width
+          $this.siblings("svg[id$=-column-svg]").each () ->
+            width = privateFunctions.getColumnContentWidth.call this
+            if currentMaxWidth < width then currentMaxWidth = width
+        if currentMaxWidth > contentWidth
+          contentWidth = currentMaxWidth
+        
+        rect =
+          height: padding * 2 + privateFunctions.getNum nameBBox.height
+          width:  padding * 2 + contentWidth
+          x:      margin
+          y:      margin
+        
+        boundingRect =
+          height: margin * 2 + rect.height
+          width:  margin * 2 + rect.width
+          
+        name =
+          x: boundingRect.width / 2 - nameBBox.width / 2
+          y: boundingRect.height / 2 + nameBBox.height / 2
+          
+        $boundingRect.attr boundingRect
+        $rect.attr rect
+        $name.attr name
+        $this.attr boundingRect
+        
+        # if this column produces a wider box than its siblings, then its
+        # siblings need widening accordingly
+        if contentWidth > currentMaxWidth
+          $this.siblings("svg[id$=-column-svg]").each () ->
+            privateFunctions.redrawColumn.call this, settings, contentWidth, false
+            
+        if bubble
+          parent = $this.closest "svg[id$=-columns-svg]"
+          privateFunctions.redraw.call parent
+        
+        $this
+        
+      redrawColumns: (settings) ->
+        $columnsSvg = privateFunctions.checkContext.call this, "svg", "columns-svg"
+        $columns = $columnsSvg.find "g.columns-g > svg.column-svg"
+        top = 0
+        $columns.each () ->
+          $(this).attr "y", top
+          top += this.getBBox().height
+        $columnsSvg.attr
+          height: top
+          width: $columns.get(0).getBBox().width
+        
+        parent = $columnsSvg.closest "svg[id$=-table-svg]"
+        privateFunctions.redraw.call parent
+        
+      redrawTable: (settings) ->
+        $this = privateFunctions.checkContext.call this, "svg", "table-svg"
+        $rect = $this.find "g.table-g > rect.table-rect"
+        $name = $this.find "g.table-g > text.table-name"
+        $children = $name.siblings "svg"
+        padding = privateFunctions.getNum settings.defaultDimensions.table.padding
+        nameBBox = $name.get(0).getBBox()
+        maxWidth = 0
+        $children.each () ->
+          width = this.getBBox().width
+          if width > maxWidth then maxWidth = width
+        rect = width: padding * 2 + maxWidth
+        $name.attr
+          x: rect.width / 2 - nameBBox.width / 2
+          y: padding + nameBBox.height
+        top = padding * 2 + nameBBox.height
+        $children.each () ->
+          bBox = this.getBBox()
+          $(this).attr
+            x: rect.width / 2 - bBox.width / 2
+            y: top
+          top += bBox.height
+        rect.height = top + padding
+        $rect.attr rect
+        $this.attr rect
+        
       svgHasClass: (className) ->
         $this = if this instanceof jQuery then this else $ this
         if $this.prop("classList") instanceof DOMTokenList
@@ -63,11 +163,11 @@ jQuery.fn.extend
     
     publicFunctions =
       addColumn: (column, table = this) ->
-        if typeof table is "string" then table = document.getElementById "#{table}-svg"
+        if typeof table is "string" then table = document.getElementById "#{table}-table-svg"
         $table = privateFunctions.checkContext.call table, "svg", "table-svg"
         if column not instanceof Column or not column.getName() then $.error "A column must be used with addColumn()"
         
-        settings = privateFunctions.getData.call (privateFunctions.getData.call $table, "root"), "settings"
+        settings = privateFunctions.getData.call $("svg.#{publicFunctions.plugin.info "name"}"), "settings"
         tableObj = privateFunctions.getData.call $table, "table"
         tableObj.addColumn column
         
@@ -76,46 +176,39 @@ jQuery.fn.extend
         columnSvg = privateFunctions.createSvgElement "svg"
         columnSvg.attr
           class: "column-svg"
-          id: "#{tableObj.getName()}-#{column.getName()}-svg"
+          id:    "#{tableObj.getName()}-#{column.getName()}-column-svg"
         privateFunctions.addData.call columnSvg, column: column
         
         columnGroup = privateFunctions.createSvgElement "g"
+        columnGroup.attr
           class: "column-g"
-          id: "#{tableObj.getName()}-#{column.getName()}-g"
+          id:    "#{tableObj.getName()}-#{column.getName()}-column-g"
+          
+        columnBoundingRect = privateFunctions.createSvgElement "rect"
+        columnBoundingRect.attr
+          class: "column-brect brect"
+          x:     0
+          y:     0
+          
+        columnRect = privateFunctions.createSvgElement "rect"
+        columnRect.attr
+          class: "column-rect"
+          id:    "#{tableObj.getName()}-#{column.getName()}-column-rect"
           
         columnName = privateFunctions.createSvgElement "text"
         columnName.attr
           class: "column-name"
-          id: "#{tableObj.getName()}-#{column.getName()}-name"
+          id:    "#{tableObj.getName()}-#{column.getName()}-column-name"
         columnName.text column.getName()
         
-        columnGroup.append columnName
+        columnGroup.append columnBoundingRect, columnRect, columnName
         columnSvg.append columnGroup
         columnsGroup.append columnSvg
         
-        #columnsSvg = null
-        #$table.find("svg").each () ->
-        #  if privateFunctions.svgHasClass.call this, "columns"
-        #    columnsSvg = this
-        #    false
-        #console.log columnsSvg
-        #if not columnsSvg
-        #  columnsSvg = privateFunctions.createSvgElement "svg"
-        #  columnsSvg.attr
-        #    class: "columns"
-        #    height: settings.defaultDimensions.column.height
-        #    width:  settings.defaultDimensions.column.width
-        #    x:      $table.find("text:first").get(0).getBBox().height
-        #    y:      0
-        #  privateFunctions.addData.call columnsSvg, root: privateFunctions.getData.call $table, "root"
-        #  $table.children("g").append columnsSvg
-        #  columnsGroup = privateFunctions.createSvgElement "g"
-        #  columnsSvg.append columnsGroup
-        #else
-        #  columnGroup = columnsSvg.children "g"
+        privateFunctions.redraw.call columnSvg
     
       addTable: (table) ->
-        $this = privateFunctions.checkContext.call this, "svg", "canvas"
+        $this = privateFunctions.checkContext.call this, "svg", publicFunctions.plugin.info "name"
         if table not instanceof Table or not table.getName() then $.error "A table must be used with addTable()"
         
         database = privateFunctions.getData.call $this, "database"
@@ -126,27 +219,27 @@ jQuery.fn.extend
         tableSvg = privateFunctions.createSvgElement "svg"
         tableSvg.attr
           class: "table-svg"
-          id:    "#{table.getName()}-svg"
+          id:    "#{table.getName()}-table-svg"
           x:     0
           y:     0
-        privateFunctions.addData.call tableSvg, table:table, root: $this
+        privateFunctions.addData.call tableSvg, table: table, root: $this
         
         tableGroup = privateFunctions.createSvgElement "g"
         tableGroup.attr
           class: "table-g"
-          id:    "#{table.getName()}-g"
+          id:    "#{table.getName()}-table-g"
         
         tableRect = privateFunctions.createSvgElement "rect"
         tableRect.attr
           class: "table-rect"
-          id:    "#{table.getName()}-rect"
+          id:    "#{table.getName()}-table-rect"
           x:     0
           y:     0
           
         tableName = privateFunctions.createSvgElement "text"
         tableName.attr
           class: "table-name"
-          id:    "#{table.getName()}-name"
+          id:    "#{table.getName()}-table-name"
         tableName.text table.getName()
           
         columnsSvg = privateFunctions.createSvgElement "svg"
@@ -158,13 +251,20 @@ jQuery.fn.extend
         columnsGroup.attr
           class: "columns-g"
           id:    "#{table.getName()}-columns-g"
+          
+        columnsBoundingRect = privateFunctions.createSvgElement "rect"
+        columnsBoundingRect.attr
+          class: "columns-brect brect"
+          x:     0
+          y:     0
         
+        columnsGroup.append columnsBoundingRect
         columnsSvg.append columnsGroup
         tableGroup.append tableRect, tableName, columnsSvg
         tableSvg.append tableGroup
         $this.append tableSvg
         
-        privateFunctions.redraw.call tableSvg
+        #privateFunctions.redraw.call tableSvg
         
         #tableSvg = privateFunctions.createSvgElement "svg"
         #tableSvg.attr
@@ -202,15 +302,17 @@ jQuery.fn.extend
         
       init: (options) ->
         $this = if this instanceof jQuery then this else $ this
-        if $this.prop("classList") instanceof DOMTokenList
-          if not $this.prop("classList").contains "canvas" then $this.prop("classList").add "canvas"
-        else # IE
-          if this.className.baseVal.lastIndexOf "canvas" is -1 then this.className.baseVal = this.className.baseVal + " canvas"
         pluginName = publicFunctions.plugin.info "name"
+        if $this.prop("classList") instanceof DOMTokenList
+          if not $this.prop("classList").contains pluginName then $this.prop("classList").add pluginName
+        else # IE
+          if this.className.baseVal.lastIndexOf pluginName is -1 then this.className.baseVal = this.className.baseVal + " canvas"
         settings =
           defaultDimensions:
             column:
               height: 50
+              margin: 0
+              padding: 5
               width:  200
             table:
               height: 300

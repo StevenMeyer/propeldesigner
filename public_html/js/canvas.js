@@ -36,8 +36,7 @@ jQuery.fn.extend({
       checkContext: function(tagName, className) {
         var $this, classes, wild, _tagname;
         $this = this instanceof jQuery ? this : $(this);
-        _tagname = $this && $this.prop("tagName") ? $this.prop("tagName") : null;
-        _tagname = _tagname.toLowerCase();
+        _tagname = $this && $this.prop("tagName") ? $this.prop("tagName").toLowerCase() : null;
         if (_tagname !== tagName || (className && !privateFunctions.svgHasClass.call($this, className))) {
           wild = "*";
           classes = $this && $this.attr("class") ? $this.attr("class") : "";
@@ -50,6 +49,12 @@ jQuery.fn.extend({
         svgns = "http://www.w3.org/2000/svg";
         elem = document.createElementNS(svgns, tagName);
         return $(elem);
+      },
+      getColumnContentWidth: function() {
+        var $name, $this;
+        $this = privateFunctions.checkContext.call(this, "svg", "column-svg");
+        $name = $this.find("g.column-g > text.column-name");
+        return privateFunctions.getNum($name.get(0).getBBox().width);
       },
       getData: function(property) {
         var $this, data;
@@ -65,13 +70,129 @@ jQuery.fn.extend({
           }
         }
       },
+      getNum: function(value) {
+        return parseInt(+value || 0, 10);
+      },
       redraw: function() {
-        var $table, columnsSvg, settings, tableName, tableRect;
-        $table = privateFunctions.checkContext.call(this, "svg", "table-svg");
-        settings = privateFunctions.getData.call(privateFunctions.getData.call($table, "root"), "settings");
-        tableRect = $table.find("g > rect:first");
-        tableName = $table.find("g > text:first");
-        return columnsSvg = $table.find("g > svg[id$='-columns-svg']");
+        var $this, settings;
+        $this = privateFunctions.checkContext.call(this, "svg");
+        settings = privateFunctions.getData.call($("svg." + (publicFunctions.plugin.info("name"))), "settings");
+        if (privateFunctions.svgHasClass.call(this, "column-svg")) {
+          return privateFunctions.redrawColumn.call(this, settings, 0);
+        } else if (privateFunctions.svgHasClass.call(this, "columns-svg")) {
+          return privateFunctions.redrawColumns.call(this, settings);
+        } else if (privateFunctions.svgHasClass.call(this, "table-svg")) {
+          return privateFunctions.redrawTable.call(this, settings);
+        }
+      },
+      redrawColumn: function(settings, currentMaxWidth, bubble) {
+        var $boundingRect, $name, $rect, $this, boundingRect, contentWidth, margin, name, nameBBox, padding, parent, rect;
+        if (bubble == null) {
+          bubble = true;
+        }
+        $this = privateFunctions.checkContext.call(this, "svg", "column-svg");
+        $boundingRect = $this.find("g.column-g rect.column-brect");
+        $rect = $this.find("g.column-g rect.column-rect");
+        $name = $this.find("g.column-g text.column-name");
+        nameBBox = $name.get(0).getBBox();
+        currentMaxWidth = privateFunctions.getNum(currentMaxWidth);
+        margin = privateFunctions.getNum(settings.defaultDimensions.column.margin);
+        padding = privateFunctions.getNum(settings.defaultDimensions.column.padding);
+        contentWidth = privateFunctions.getColumnContentWidth.call($this);
+        if (!currentMaxWidth) {
+          currentMaxWidth = privateFunctions.getNum(settings.defaultDimensions.column.width);
+          $this.siblings("svg[id$=-column-svg]").each(function() {
+            var width;
+            width = privateFunctions.getColumnContentWidth.call(this);
+            if (currentMaxWidth < width) {
+              return currentMaxWidth = width;
+            }
+          });
+        }
+        if (currentMaxWidth > contentWidth) {
+          contentWidth = currentMaxWidth;
+        }
+        rect = {
+          height: padding * 2 + privateFunctions.getNum(nameBBox.height),
+          width: padding * 2 + contentWidth,
+          x: margin,
+          y: margin
+        };
+        boundingRect = {
+          height: margin * 2 + rect.height,
+          width: margin * 2 + rect.width
+        };
+        name = {
+          x: boundingRect.width / 2 - nameBBox.width / 2,
+          y: boundingRect.height / 2 + nameBBox.height / 2
+        };
+        $boundingRect.attr(boundingRect);
+        $rect.attr(rect);
+        $name.attr(name);
+        $this.attr(boundingRect);
+        if (contentWidth > currentMaxWidth) {
+          $this.siblings("svg[id$=-column-svg]").each(function() {
+            return privateFunctions.redrawColumn.call(this, settings, contentWidth, false);
+          });
+        }
+        if (bubble) {
+          parent = $this.closest("svg[id$=-columns-svg]");
+          privateFunctions.redraw.call(parent);
+        }
+        return $this;
+      },
+      redrawColumns: function(settings) {
+        var $columns, $columnsSvg, parent, top;
+        $columnsSvg = privateFunctions.checkContext.call(this, "svg", "columns-svg");
+        $columns = $columnsSvg.find("g.columns-g > svg.column-svg");
+        top = 0;
+        $columns.each(function() {
+          $(this).attr("y", top);
+          return top += this.getBBox().height;
+        });
+        $columnsSvg.attr({
+          height: top,
+          width: $columns.get(0).getBBox().width
+        });
+        parent = $columnsSvg.closest("svg[id$=-table-svg]");
+        return privateFunctions.redraw.call(parent);
+      },
+      redrawTable: function(settings) {
+        var $children, $name, $rect, $this, maxWidth, nameBBox, padding, rect, top;
+        $this = privateFunctions.checkContext.call(this, "svg", "table-svg");
+        $rect = $this.find("g.table-g > rect.table-rect");
+        $name = $this.find("g.table-g > text.table-name");
+        $children = $name.siblings("svg");
+        padding = privateFunctions.getNum(settings.defaultDimensions.table.padding);
+        nameBBox = $name.get(0).getBBox();
+        maxWidth = 0;
+        $children.each(function() {
+          var width;
+          width = this.getBBox().width;
+          if (width > maxWidth) {
+            return maxWidth = width;
+          }
+        });
+        rect = {
+          width: padding * 2 + maxWidth
+        };
+        $name.attr({
+          x: rect.width / 2 - nameBBox.width / 2,
+          y: padding + nameBBox.height
+        });
+        top = padding * 2 + nameBBox.height;
+        $children.each(function() {
+          var bBox;
+          bBox = this.getBBox();
+          $(this).attr({
+            x: rect.width / 2 - bBox.width / 2,
+            y: top
+          });
+          return top += bBox.height;
+        });
+        rect.height = top + padding;
+        $rect.attr(rect);
+        return $this.attr(rect);
       },
       svgHasClass: function(className) {
         var $this;
@@ -85,46 +206,59 @@ jQuery.fn.extend({
     };
     publicFunctions = {
       addColumn: function(column, table) {
-        var $table, columnGroup, columnName, columnSvg, columnsGroup, settings, tableObj;
+        var $table, columnBoundingRect, columnGroup, columnName, columnRect, columnSvg, columnsGroup, settings, tableObj;
         if (table == null) {
           table = this;
         }
         if (typeof table === "string") {
-          table = document.getElementById("" + table + "-svg");
+          table = document.getElementById("" + table + "-table-svg");
         }
         $table = privateFunctions.checkContext.call(table, "svg", "table-svg");
         if (!(column instanceof Column) || !column.getName()) {
           $.error("A column must be used with addColumn()");
         }
-        settings = privateFunctions.getData.call(privateFunctions.getData.call($table, "root"), "settings");
+        settings = privateFunctions.getData.call($("svg." + (publicFunctions.plugin.info("name"))), "settings");
         tableObj = privateFunctions.getData.call($table, "table");
         tableObj.addColumn(column);
         columnsGroup = $table.find("g.columns-g:first");
         columnSvg = privateFunctions.createSvgElement("svg");
         columnSvg.attr({
           "class": "column-svg",
-          id: "" + (tableObj.getName()) + "-" + (column.getName()) + "-svg"
+          id: "" + (tableObj.getName()) + "-" + (column.getName()) + "-column-svg"
         });
         privateFunctions.addData.call(columnSvg, {
           column: column
         });
-        columnGroup = privateFunctions.createSvgElement("g", {
+        columnGroup = privateFunctions.createSvgElement("g");
+        columnGroup.attr({
           "class": "column-g",
-          id: "" + (tableObj.getName()) + "-" + (column.getName()) + "-g"
+          id: "" + (tableObj.getName()) + "-" + (column.getName()) + "-column-g"
+        });
+        columnBoundingRect = privateFunctions.createSvgElement("rect");
+        columnBoundingRect.attr({
+          "class": "column-brect brect",
+          x: 0,
+          y: 0
+        });
+        columnRect = privateFunctions.createSvgElement("rect");
+        columnRect.attr({
+          "class": "column-rect",
+          id: "" + (tableObj.getName()) + "-" + (column.getName()) + "-column-rect"
         });
         columnName = privateFunctions.createSvgElement("text");
         columnName.attr({
           "class": "column-name",
-          id: "" + (tableObj.getName()) + "-" + (column.getName()) + "-name"
+          id: "" + (tableObj.getName()) + "-" + (column.getName()) + "-column-name"
         });
         columnName.text(column.getName());
-        columnGroup.append(columnName);
+        columnGroup.append(columnBoundingRect, columnRect, columnName);
         columnSvg.append(columnGroup);
-        return columnsGroup.append(columnSvg);
+        columnsGroup.append(columnSvg);
+        return privateFunctions.redraw.call(columnSvg);
       },
       addTable: function(table) {
-        var $this, columnsGroup, columnsSvg, database, settings, tableGroup, tableName, tableRect, tableSvg;
-        $this = privateFunctions.checkContext.call(this, "svg", "canvas");
+        var $this, columnsBoundingRect, columnsGroup, columnsSvg, database, settings, tableGroup, tableName, tableRect, tableSvg;
+        $this = privateFunctions.checkContext.call(this, "svg", publicFunctions.plugin.info("name"));
         if (!(table instanceof Table) || !table.getName()) {
           $.error("A table must be used with addTable()");
         }
@@ -134,7 +268,7 @@ jQuery.fn.extend({
         tableSvg = privateFunctions.createSvgElement("svg");
         tableSvg.attr({
           "class": "table-svg",
-          id: "" + (table.getName()) + "-svg",
+          id: "" + (table.getName()) + "-table-svg",
           x: 0,
           y: 0
         });
@@ -145,19 +279,19 @@ jQuery.fn.extend({
         tableGroup = privateFunctions.createSvgElement("g");
         tableGroup.attr({
           "class": "table-g",
-          id: "" + (table.getName()) + "-g"
+          id: "" + (table.getName()) + "-table-g"
         });
         tableRect = privateFunctions.createSvgElement("rect");
         tableRect.attr({
           "class": "table-rect",
-          id: "" + (table.getName()) + "-rect",
+          id: "" + (table.getName()) + "-table-rect",
           x: 0,
           y: 0
         });
         tableName = privateFunctions.createSvgElement("text");
         tableName.attr({
           "class": "table-name",
-          id: "" + (table.getName()) + "-name"
+          id: "" + (table.getName()) + "-table-name"
         });
         tableName.text(table.getName());
         columnsSvg = privateFunctions.createSvgElement("svg");
@@ -170,11 +304,17 @@ jQuery.fn.extend({
           "class": "columns-g",
           id: "" + (table.getName()) + "-columns-g"
         });
+        columnsBoundingRect = privateFunctions.createSvgElement("rect");
+        columnsBoundingRect.attr({
+          "class": "columns-brect brect",
+          x: 0,
+          y: 0
+        });
+        columnsGroup.append(columnsBoundingRect);
         columnsSvg.append(columnsGroup);
         tableGroup.append(tableRect, tableName, columnsSvg);
         tableSvg.append(tableGroup);
-        $this.append(tableSvg);
-        return privateFunctions.redraw.call(tableSvg);
+        return $this.append(tableSvg);
       },
       destroy: function() {
         var $this;
@@ -185,20 +325,22 @@ jQuery.fn.extend({
       init: function(options) {
         var $this, pluginName, settings;
         $this = this instanceof jQuery ? this : $(this);
+        pluginName = publicFunctions.plugin.info("name");
         if ($this.prop("classList") instanceof DOMTokenList) {
-          if (!$this.prop("classList").contains("canvas")) {
-            $this.prop("classList").add("canvas");
+          if (!$this.prop("classList").contains(pluginName)) {
+            $this.prop("classList").add(pluginName);
           }
         } else {
-          if (this.className.baseVal.lastIndexOf("canvas" === -1)) {
+          if (this.className.baseVal.lastIndexOf(pluginName === -1)) {
             this.className.baseVal = this.className.baseVal + " canvas";
           }
         }
-        pluginName = publicFunctions.plugin.info("name");
         settings = {
           defaultDimensions: {
             column: {
               height: 50,
+              margin: 0,
+              padding: 5,
               width: 200
             },
             table: {

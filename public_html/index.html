@@ -67,13 +67,19 @@
                         font-family: Helvetica, sans-serif;
                         font-size: 12pt;
                     }
+                    rect.brect {
+                        fill: none;
+                    }
                     rect.table-rect {
                         fill: rgb(0, 0, 200);
                         stroke-width: 1;
                         stroke: rgb(0, 0, 0);
                     }
-                    text.tablename {
+                    text.table-name {
                         fill: rgb(200, 0, 0);
+                    }
+                    rect.column-rect {
+                        fill: rgb(100, 100, 255);
                     }
                 ]]></style>
             </svg>
@@ -95,6 +101,7 @@
             svg.propelCanvas();
             svg.propelCanvas("addTable", new Table("test"));
             svg.propelCanvas("addColumn", new Column("col1"), "test");
+            svg.propelCanvas("addColumn", new Column("col2"), "test");
         </script>
 
         <script>

@@ -40,6 +40,12 @@
                     database = Builder.buildFromXML(xml);
                 assertEquals("Table should have one column", 1, database.getTables()[0].getColumns().length);
             }
+            
+            function testColumnHasName() {
+                var xml = "<database name='testDb' defaultIdMethod='native'><table name='testTable'><column name='testColumn' /></table></database>",
+                    database = Builder.buildFromXML(xml);
+                assertEquals("Table should have the given name", "testColumn", database.getTables()[0].getColumns()[0].getName());
+            }
         </script>
     </body>
 </html>

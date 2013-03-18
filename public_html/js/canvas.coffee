@@ -38,6 +38,15 @@ jQuery.fn.extend
         elem = document.createElementNS svgns, tagName
         $ elem
         
+      dragTable: (mousemoveEvent, previousEvent) ->
+        if mousemoveEvent not instanceof jQuery.Event or previousEvent not instanceof jQuery.Event then $.error "Event must be a jQuery event"
+        $table = privateFunctions.checkContext.call this, "svg", "table-svg"
+        dx = mousemoveEvent.pageX - previousEvent.pageX
+        dy = mousemoveEvent.pageY - previousEvent.pageY
+        $table.attr
+          x: dx + privateFunctions.getNum $table.attr "x"
+          y: dy + privateFunctions.getNum $table.attr "y"
+        
       getColumnContentWidth: () ->
         $this = privateFunctions.checkContext.call this, "svg", "column-svg"
         $name = $this.find "g.column-g > text.column-name"
@@ -49,7 +58,7 @@ jQuery.fn.extend
           $.error "Element has no data"
         else
           data = $this.data publicFunctions.plugin.info "name"
-          if data[property] then data[property] else $.error "No data property " + property
+          if data[property] then data[property] else null
           
       getNum: (value) ->
         parseInt +value or 0, 10
@@ -264,36 +273,21 @@ jQuery.fn.extend
         tableSvg.append tableGroup
         $this.append tableSvg
         
-        #privateFunctions.redraw.call tableSvg
-        
-        #tableSvg = privateFunctions.createSvgElement "svg"
-        #tableSvg.attr
-        #  class:  "table" # $.addClass doesn't work for SVG
-        #  id:     table.getName()
-        #  x:      0
-        #  y:      0
-        #privateFunctions.addData.call tableSvg, table: table, root: $this
-        #$this.append tableSvg
-        
-        #tableGroup = privateFunctions.createSvgElement "g"
-        #tableSvg.append tableGroup
-
-        #tableRect = privateFunctions.createSvgElement "rect"
-        #tableRect.attr
-        #  x:      0
-        #  y:      0
-        #tableGroup.append tableRect
-        
-        #tableName = privateFunctions.createSvgElement "text"
-        #tableGroup.append tableName
-        #tableName.text table.getName()
-        #tableName.attr
-        #  class: "tablename"
-        #tableName.attr
-        #  class: "tablename"
-        #  x: settings.defaultDimensions.table.width / 2 - tableName.get(0).getBBox().width / 2
-        #  y: tableName.get(0).getBBox().height
-        
+        pluginName = publicFunctions.plugin.info "name"
+        tableSvg.on "mousedown.#{pluginName}", (mousedownEvent) ->
+          if privateFunctions.getData.call $this, "inEvent"
+            return false
+          else
+            privateFunctions.addData.call $this, inEvent: true
+          $body = $ "body"
+          previousEvent = mousedownEvent
+          $body.on "mousemove.#{pluginName}", (mousemoveEvent) ->
+            privateFunctions.dragTable.call tableSvg, mousemoveEvent, previousEvent
+            previousEvent = mousemoveEvent
+          $body.one "mouseup.#{pluginName}", (mouseupEvent) ->
+            $body.off "mousemove.#{pluginName}"
+            privateFunctions.addData.call $this, inEvent: false
+            mouseupEvent.stopPropagation()
           
       destroy: () ->
         $this = $ this
@@ -306,7 +300,7 @@ jQuery.fn.extend
         if $this.prop("classList") instanceof DOMTokenList
           if not $this.prop("classList").contains pluginName then $this.prop("classList").add pluginName
         else # IE
-          if this.className.baseVal.lastIndexOf pluginName is -1 then this.className.baseVal = this.className.baseVal + " canvas"
+          if this.className.baseVal.lastIndexOf pluginName is -1 then this.className.baseVal = this.className.baseVal + " #{pluginName}"
         settings =
           defaultDimensions:
             column:

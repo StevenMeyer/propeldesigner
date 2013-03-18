@@ -50,6 +50,19 @@ jQuery.fn.extend({
         elem = document.createElementNS(svgns, tagName);
         return $(elem);
       },
+      dragTable: function(mousemoveEvent, previousEvent) {
+        var $table, dx, dy;
+        if (!(mousemoveEvent instanceof jQuery.Event) || !(previousEvent instanceof jQuery.Event)) {
+          $.error("Event must be a jQuery event");
+        }
+        $table = privateFunctions.checkContext.call(this, "svg", "table-svg");
+        dx = mousemoveEvent.pageX - previousEvent.pageX;
+        dy = mousemoveEvent.pageY - previousEvent.pageY;
+        return $table.attr({
+          x: dx + privateFunctions.getNum($table.attr("x")),
+          y: dy + privateFunctions.getNum($table.attr("y"))
+        });
+      },
       getColumnContentWidth: function() {
         var $name, $this;
         $this = privateFunctions.checkContext.call(this, "svg", "column-svg");
@@ -66,7 +79,7 @@ jQuery.fn.extend({
           if (data[property]) {
             return data[property];
           } else {
-            return $.error("No data property " + property);
+            return null;
           }
         }
       },
@@ -257,7 +270,7 @@ jQuery.fn.extend({
         return privateFunctions.redraw.call(columnSvg);
       },
       addTable: function(table) {
-        var $this, columnsBoundingRect, columnsGroup, columnsSvg, database, settings, tableGroup, tableName, tableRect, tableSvg;
+        var $this, columnsBoundingRect, columnsGroup, columnsSvg, database, pluginName, settings, tableGroup, tableName, tableRect, tableSvg;
         $this = privateFunctions.checkContext.call(this, "svg", publicFunctions.plugin.info("name"));
         if (!(table instanceof Table) || !table.getName()) {
           $.error("A table must be used with addTable()");
@@ -314,7 +327,31 @@ jQuery.fn.extend({
         columnsSvg.append(columnsGroup);
         tableGroup.append(tableRect, tableName, columnsSvg);
         tableSvg.append(tableGroup);
-        return $this.append(tableSvg);
+        $this.append(tableSvg);
+        pluginName = publicFunctions.plugin.info("name");
+        return tableSvg.on("mousedown." + pluginName, function(mousedownEvent) {
+          var $body, previousEvent;
+          if (privateFunctions.getData.call($this, "inEvent")) {
+            return false;
+          } else {
+            privateFunctions.addData.call($this, {
+              inEvent: true
+            });
+          }
+          $body = $("body");
+          previousEvent = mousedownEvent;
+          $body.on("mousemove." + pluginName, function(mousemoveEvent) {
+            privateFunctions.dragTable.call(tableSvg, mousemoveEvent, previousEvent);
+            return previousEvent = mousemoveEvent;
+          });
+          return $body.one("mouseup." + pluginName, function(mouseupEvent) {
+            $body.off("mousemove." + pluginName);
+            privateFunctions.addData.call($this, {
+              inEvent: false
+            });
+            return mouseupEvent.stopPropagation();
+          });
+        });
       },
       destroy: function() {
         var $this;
@@ -332,7 +369,7 @@ jQuery.fn.extend({
           }
         } else {
           if (this.className.baseVal.lastIndexOf(pluginName === -1)) {
-            this.className.baseVal = this.className.baseVal + " canvas";
+            this.className.baseVal = this.className.baseVal + (" " + pluginName);
           }
         }
         settings = {

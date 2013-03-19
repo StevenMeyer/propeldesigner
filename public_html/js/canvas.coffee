@@ -288,6 +288,9 @@ jQuery.fn.extend
             $body.off "mousemove.#{pluginName}"
             privateFunctions.addData.call $this, inEvent: false
             mouseupEvent.stopPropagation()
+        
+        publicFunctions.addColumn column, tableSvg for column in table.getColumns()
+        tableSvg
           
       destroy: () ->
         $this = $ this

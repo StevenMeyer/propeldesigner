@@ -270,7 +270,7 @@ jQuery.fn.extend({
         return privateFunctions.redraw.call(columnSvg);
       },
       addTable: function(table) {
-        var $this, columnsBoundingRect, columnsGroup, columnsSvg, database, pluginName, settings, tableGroup, tableName, tableRect, tableSvg;
+        var $this, column, columnsBoundingRect, columnsGroup, columnsSvg, database, pluginName, settings, tableGroup, tableName, tableRect, tableSvg, _i, _len, _ref;
         $this = privateFunctions.checkContext.call(this, "svg", publicFunctions.plugin.info("name"));
         if (!(table instanceof Table) || !table.getName()) {
           $.error("A table must be used with addTable()");
@@ -329,7 +329,7 @@ jQuery.fn.extend({
         tableSvg.append(tableGroup);
         $this.append(tableSvg);
         pluginName = publicFunctions.plugin.info("name");
-        return tableSvg.on("mousedown." + pluginName, function(mousedownEvent) {
+        tableSvg.on("mousedown." + pluginName, function(mousedownEvent) {
           var $body, previousEvent;
           if (privateFunctions.getData.call($this, "inEvent")) {
             return false;
@@ -352,6 +352,12 @@ jQuery.fn.extend({
             return mouseupEvent.stopPropagation();
           });
         });
+        _ref = table.getColumns();
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          column = _ref[_i];
+          publicFunctions.addColumn(column, tableSvg);
+        }
+        return tableSvg;
       },
       destroy: function() {
         var $this;

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database name="sample" defaultIdMethod="native" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://xsd.propelorm.org/1.6/database.xsd" >
+    <table name="table1">
+        <column name="column1" />
+    </table>
+    <table name="table2">
+        <column name="column1" />
+    </table>
+</database>

@@ -17,7 +17,11 @@ Builder = (function() {
     var build, buildColumn, buildTable;
     build = function(xml) {
       var $database, database, _xml;
-      _xml = $($.parseXML(xml));
+      try {
+        _xml = $($.parseXML(xml));
+      } catch (ex) {
+        $.error(ex.message);
+      }
       $database = _xml.find("database:first");
       if ($database.length === 0) {
         $.error("No database element found");
@@ -25,7 +29,7 @@ Builder = (function() {
       try {
         database = new Database($database.attr("name"), $database.attr("defaultIdMethod"));
       } catch (ex) {
-        $.error("The database element is malformed (" + ex + ")");
+        $.error("The database element is malformed (" + ex.message + ")");
       }
       $database.children("table").each(function() {
         return buildTable($(this), database);

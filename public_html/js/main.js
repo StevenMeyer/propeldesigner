@@ -8,14 +8,14 @@
 */
 
 jQuery(document).ready(function($) {
-  var addFileLoadDialogue, addPageButtons, checkFile, init, loadFile, loadXML, openFileLoadDialogue;
-  addFileLoadDialogue = function() {
+  var addLoadDialogue, addPageButtons, checkFile, init, loadXML, openLoadDialogue;
+  addLoadDialogue = function() {
     var $body, $container, $footer, $form, $header;
     $container = $("<div>", {
-      id: "loadFileModal",
+      id: "loadModal",
       tabindex: -1,
       role: "dialog",
-      "aria-labelledby": "modalLabel",
+      "aria-labelledby": "loadLabel",
       "aria-hidden": true
     });
     $container.addClass("modal hide fade");
@@ -31,9 +31,9 @@ jQuery(document).ready(function($) {
       $close.addClass("close");
       $close.text("x");
       $h = $("<h3>", {
-        id: "modalLabel"
+        id: "loadLabel"
       });
-      $h.text("Load an XML Schema File");
+      $h.text("Load an XML Schema");
       return [$close, $h];
     });
     $body = $("<div>");
@@ -43,41 +43,23 @@ jQuery(document).ready(function($) {
       var $fieldset;
       $fieldset = $("<fieldset>");
       $fieldset.append(function() {
-        var $div;
-        $div = $("<div>");
-        $div.addClass("control-group");
-        $div.append(function() {
+        var $controlGroup;
+        $controlGroup = $("<div>");
+        $controlGroup.addClass("control-group");
+        $controlGroup.append(function() {
           var $controls, $label;
           $label = $("<label>", {
-            "for": "file-load-input"
+            "for": "xml-input"
           });
           $label.addClass("control-label");
-          $label.text("Choose a schema to load.");
+          $label.text("XML schema to load:");
           $controls = $("<div>");
           $controls.addClass("controls");
-          $controls.append(function() {
-            var $file, $message;
-            $file = $("<input>", {
-              id: "file-load-input",
-              type: "file"
-            });
-            $file.addClass("input-block-level");
-            $file.on("change", function(event) {
-              return checkFile(event.currentTarget.files[0]);
-            });
-            $message = $("<span>");
-            $message.addClass("help-inline");
-            $message.hide();
-            return [$file, $message];
-          });
           return [$label, $controls];
         });
-        return $div;
+        return $controlGroup;
       });
       return $fieldset;
-    });
-    $form.on("submit", function(event) {
-      return loadFile(event.currentTarget[1].files[0]);
     });
     $body.append($form);
     $footer = $("<div>");
@@ -90,6 +72,9 @@ jQuery(document).ready(function($) {
       });
       $cancel.addClass("btn");
       $cancel.text("Cancel");
+      $cancel.on("click", function() {
+        return $body.children("div.alert").hide();
+      });
       $load = $("<button>", {
         disabled: "disabled"
       });
@@ -183,7 +168,7 @@ jQuery(document).ready(function($) {
           id: "load-file"
         }).text("File"));
         $file.on("click", function() {
-          return openFileLoadDialogue();
+          return openLoadDialogue("file");
         });
         $xml = $("<li>");
         $xml.append($("<a>", {
@@ -191,6 +176,9 @@ jQuery(document).ready(function($) {
           href: "#",
           id: "load-xml"
         }).text("XML"));
+        $xml.on("click", function() {
+          return openLoadDialogue("xml");
+        });
         append = [$xml];
         if (window.File && window.FileReader) {
           append = [$file].concat(append);
@@ -206,19 +194,18 @@ jQuery(document).ready(function($) {
     var $button, $controlGroup, $message, fileSizeWarn, mime;
     mime = /^text.*$/;
     fileSizeWarn = 1048576;
-    $button = $("#loadFileModal > div.modal-footer > button:last");
-    $controlGroup = $("#loadFileModal form div.control-group");
+    $button = $("#loadModal > div.modal-footer > button:last");
+    $controlGroup = $("#loadModal form div.control-group");
     $message = $controlGroup.find("span.help-inline");
     if (!file) {
       return $button.attr("disabled", "disabled");
-    } else if (!file.type.match(/^text.*/)) {
+    } else if (!file.type.match(mime)) {
       $controlGroup.removeClass("warning");
       $controlGroup.addClass("error");
       $message.text("The file is not a text file.");
       $message.show();
       return $button.attr("disabled", "disabled");
     } else if (file.size > fileSizeWarn) {
-      console.log(fileSizeWarn);
       $controlGroup.removeClass("error");
       $controlGroup.addClass("warning");
       $message.text("The file is very large. Are you sure that it's the right one?");
@@ -233,35 +220,103 @@ jQuery(document).ready(function($) {
   init = function() {
     return addPageButtons();
   };
-  loadFile = function(file) {
-    var reader;
-    reader = new FileReader();
-    reader.onloadend = function() {
-      return loadXML(reader.result);
-    };
-    return reader.readAsText(file);
-  };
   loadXML = function(xml) {
-    var $canvas, database, table, _i, _len, _ref, _results;
-    try {
+    var $alert, $modal, build, message, reader;
+    $modal = $("#loadModal");
+    build = function(xml) {
+      var $canvas, database;
       database = Builder.buildFromXML(xml);
+      $canvas = $("svg.propelCanvas");
+      $canvas.propelCanvas("destroy");
+      return $canvas.propelCanvas("init", [{}, database]);
+    };
+    try {
+      if (window.File && window.FileReader && xml instanceof File) {
+        reader = new FileReader();
+        reader.onloadend = function() {
+          return build(reader.result);
+        };
+        reader.readAsText(xml);
+      } else {
+        build(xml);
+      }
+      return $modal.modal("hide");
     } catch (ex) {
-      $.error(ex);
+      message = ex.message.match(/^Invalid XML/i) ? "Invalid XML" : ex.message;
+      $alert = $modal.find("div.alert");
+      if ($alert.length === 0) {
+        $modal.children(".modal-body").prepend(function() {
+          $alert = $("<div>");
+          $alert.addClass("alert alert-error");
+          return $alert.append(function() {
+            var $button, $span;
+            $button = $("<button>", {
+              "data-dismiss": "alert",
+              type: "button"
+            });
+            $button.addClass("close");
+            $button.html("&times;");
+            $span = $("<span>");
+            return [$button, $span];
+          });
+        });
+      }
+      $alert.children("span").html("<strong>Error.</strong> " + ex.message);
+      return $alert.show();
     }
-    $canvas = $("svg#canvas");
-    _ref = database.getTables();
-    _results = [];
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      table = _ref[_i];
-      _results.push($canvas.propelCanvas("addTable", table));
-    }
-    return _results;
   };
-  openFileLoadDialogue = function() {
-    var $modal;
-    $modal = $("#loadFileModal");
+  openLoadDialogue = function(source) {
+    var $button, $controls, $form, $modal;
+    $modal = $("#loadModal");
+    $button = $modal.find("div.modal-footer > button.btn-primary");
     if ($modal.length === 0) {
-      $modal = addFileLoadDialogue();
+      $modal = addLoadDialogue();
+    }
+    $controls = $modal.find("div.controls");
+    if (!$controls.hasClass(source)) {
+      if (source === "file") {
+        $controls.removeClass("xml");
+      } else {
+        source = "xml";
+        $controls.removeClass("file");
+      }
+      $controls.empty();
+      $controls.addClass(source);
+      $controls.append(function() {
+        var $input, $message;
+        $input = source === "file" ? $("<input>", {
+          type: "file"
+        }) : $("<textarea>", {
+          rows: 6
+        });
+        $input.attr("id", "xml-input");
+        $input.addClass("input-block-level");
+        if (source === "file") {
+          $input.on("change", function(event) {
+            return checkFile(event.currentTarget.files[0]);
+          });
+          $message = $("<span>");
+          $message.addClass("help-inline");
+          $message.hide();
+          return [$input, $message];
+        } else {
+          return $input;
+        }
+      });
+      $form = $controls.closest("form");
+      if (source === "file") {
+        $form.off("submit");
+        $form.on("submit", function(event) {
+          return loadXML(event.currentTarget[1].files[0]);
+        });
+        $button.attr("disabled", "disabled");
+      } else {
+        $form.off("submit");
+        $form.on("submit", function(event) {
+          return loadXML(event.currentTarget[1].value);
+        });
+        $button.removeAttr("disabled");
+      }
     }
     return $modal.modal("show");
   };

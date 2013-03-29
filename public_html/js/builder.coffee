@@ -11,13 +11,16 @@
 class Builder
   @buildFromXML = (xml) ->
     build = (xml) ->
-      _xml = $ $.parseXML xml
+      try
+        _xml = $ $.parseXML xml
+      catch ex
+        $.error ex.message
       $database = _xml.find "database:first"
       if $database.length is 0 then $.error "No database element found"
       try
         database = new Database ($database.attr "name"), ($database.attr "defaultIdMethod")
       catch ex
-        $.error "The database element is malformed (#{ex})"
+        $.error "The database element is malformed (#{ex.message})"
       $database.children("table").each () ->
         buildTable ($ this), database
       database

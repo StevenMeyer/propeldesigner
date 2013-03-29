@@ -295,9 +295,12 @@ jQuery.fn.extend
       destroy: () ->
         $this = $ this
         $this.removeData publicFunctions.plugin.info "name"
-        $this.empty()
+        $this.children(":not(style)").remove()
         
-      init: (options) ->
+      init: (args) ->
+        if not args then args = []
+        options = args.slice(0, 1)[0]
+        database = args.slice(1, 2)[0]
         $this = if this instanceof jQuery then this else $ this
         pluginName = publicFunctions.plugin.info "name"
         if $this.prop("classList") instanceof DOMTokenList
@@ -316,9 +319,13 @@ jQuery.fn.extend
               padding: 5
               width:  200
         settings = $.extend settings, options
+        if not database or database not instanceof Database
+          database = new Database "myDatabase", Database.IdMethod.NATIVE
         privateFunctions.addData.call $this,
           settings: settings
-          database: new Database "myDatabase", Database.IdMethod.NATIVE
+          database: database
+        publicFunctions.addTable.call $this, table for table in database.getTables()
+        $this
           
       plugin: do ->
         vars =

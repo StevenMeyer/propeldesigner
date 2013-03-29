@@ -363,10 +363,15 @@ jQuery.fn.extend({
         var $this;
         $this = $(this);
         $this.removeData(publicFunctions.plugin.info("name"));
-        return $this.empty();
+        return $this.children(":not(style)").remove();
       },
-      init: function(options) {
-        var $this, pluginName, settings;
+      init: function(args) {
+        var $this, database, options, pluginName, settings, table, _i, _len, _ref;
+        if (!args) {
+          args = [];
+        }
+        options = args.slice(0, 1)[0];
+        database = args.slice(1, 2)[0];
         $this = this instanceof jQuery ? this : $(this);
         pluginName = publicFunctions.plugin.info("name");
         if ($this.prop("classList") instanceof DOMTokenList) {
@@ -394,10 +399,19 @@ jQuery.fn.extend({
           }
         };
         settings = $.extend(settings, options);
-        return privateFunctions.addData.call($this, {
+        if (!database || !(database instanceof Database)) {
+          database = new Database("myDatabase", Database.IdMethod.NATIVE);
+        }
+        privateFunctions.addData.call($this, {
           settings: settings,
-          database: new Database("myDatabase", Database.IdMethod.NATIVE)
+          database: database
         });
+        _ref = database.getTables();
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          table = _ref[_i];
+          publicFunctions.addTable.call($this, table);
+        }
+        return $this;
       },
       plugin: (function() {
         var vars;

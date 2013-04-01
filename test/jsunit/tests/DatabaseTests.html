@@ -114,6 +114,35 @@
                 database.setDefaultPhpNamingMethod(Database.PhpNamingMethod.CLEAN);
                 assertEquals("Default value of defaultPhpNamingMethod should be changeable", Database.PhpNamingMethod.CLEAN, database.getDefaultPhpNamingMethod());
             }
+            
+            /*function testAddInheritedValuesToTable() {
+                var database = new Database("test", Database.IdMethod.NATIVE),
+                    table = new Table("table");
+            
+                database.setPackage("package");
+                database.setSchema("schema");
+                database.setNamespace("namespace");
+                database.setDefaultPhpNamingMethod(Database.PhpNamingMethod.PHPNAME);
+                database.setBaseClass("BaseClass");
+                database.setBasePeer("BasePeer");
+                database.setHeavyIndexing(true);
+                
+                console.log(table.getPackage());
+                assertTrue("Default table values are not as expected",
+                    table.getPackage()         === Table.INHERIT &&
+                    table.getSchema()          === Table.INHERIT &&
+                    table.getNamespace()       === Table.INHERIT &&
+                    table.getPhpNamingMethod() === Table.INHERIT &&
+                    table.getBaseClass()       === Table.INHERIT &&
+                    table.getBasePeer()        === Table.INHERIT &&
+                    table.isHeavyIndexing()    === Table.INHERIT
+                );
+                
+                database.addTable(table);
+                
+                //assertEquals("Table is not inheriting the Database's package", database.getPackage(), table.getPackage());
+                
+            }*/
         </script>
     </head>
     <body>

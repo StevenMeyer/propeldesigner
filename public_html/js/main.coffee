@@ -7,7 +7,76 @@
  * THE JAVASCRIPT IS GENERATED FROM COFFEESCRIPT.
 ###
 
-jQuery(document).ready ($) ->
+$ = jQuery
+window.PropelDesigner or=
+  UI:
+    Bootstrap:
+      Dropdown: class Dropdown
+        @makeDropdown: (items) ->
+          $list = $ "<ul>", role: "menu", "aria-labelledby": "dropdownMenu"
+          $list.addClass "dropdown-menu"
+          makeListItem = (item) ->
+            $listItem = $ "<li>"
+            $listItem.append () ->
+              $a = $ "<a>", tabindex: -1, href: "#"
+              if typeof item is "string"
+                $a.html item
+              else
+                theItem = item["item"] ? item
+                $item = if theItem instanceof jQuery then theItem else $ theItem
+                $a.append $item
+              $a
+            if item.hasOwnProperty "events"
+              for event, action of item.events
+                $listItem.on event, action
+            $listItem
+          $list.append makeListItem item for item in items if items?
+          $list
+
+    Build:
+      Buttons: class Buttons
+        @addButtons: ($parent) ->
+          if $parent not instanceof jQuery then $parent = $ $parent
+
+    Button: class Button
+      @makeDropdownButton: (buttonText, $dropdown, options) ->
+        $container = $ "<div>"
+        $container.addClass "btn-group"
+        $container.addClass "dropup" if options.dropUp
+        $container.append () ->
+          $text = $ "<a>", "data-toggle": "dropdown", href: "#"
+          $text.addClass "btn dropdown-toggle"
+          $text.addClass "btn-#{options.buttonSize}" if options.buttonSize
+          $text.html buttonText
+          $text.append $ "<span class='caret'>"
+
+          if $dropdown.hasClass "dropdown-menu"
+            [$text, $dropdown]
+          else
+            $text
+
+    Form: class Form
+      @addHelpText: ($element, helpTtext, displayType) ->
+        displayType = if displayType is "block" then "block" else "inline"
+        $help = $ "<span>"
+        $help.addClass "help-#{displayType}"
+        $help.html helpText
+        if $element not instanceof jQuery
+          $help
+        else
+          $element.append $help
+          $element
+
+      @makeControlGroup: ($controls, $label) ->
+        $group = $ "<div>"
+        $group.addClass "control-group"
+        $group.append () ->
+          $controlsDiv = $ "<div>"
+          $controlsDiv.addClass "controls"
+          $controlsDiv.append $controls
+          if $label then [$label, $controlsDiv] else $controlsDiv
+
+###jQuery(document).ready ($) ->
   addLoadDialogue = () ->
     $container = $ "<div>", id: "loadModal", tabindex: -1, role: "dialog", "aria-labelledby": "loadLabel", "aria-hidden": true
     $container.addClass "modal hide fade"
@@ -49,7 +118,9 @@ jQuery(document).ready ($) ->
       $cancel = $ "<button>", "data-dismiss": "modal", "aria-hidden": true
       $cancel.addClass "btn"
       $cancel.text "Cancel"
-      $cancel.on "click", () -> $body.children("div.alert").hide()
+      $cancel.on "click", () ->
+        $body.children("div.alert").hide()
+        $body.find("div.error").removeClass "error"
 
       $load = $ "<button>", disabled: "disabled"
       $load.addClass "btn btn-primary"
@@ -85,6 +156,7 @@ jQuery(document).ready ($) ->
       $ul.append () ->
         $table = $ "<li>"
         $table.append $("<a>", tabindex: -1, href: "#", id: "add-table").text "Table"
+        $table.on "click", () -> openTableDialogue()
         [$table]
       [$a,$ul]
       
@@ -123,6 +195,182 @@ jQuery(document).ready ($) ->
     
     $form.append $add, " ", $save, " ", $load
     $nav.append $form
+    
+  addTableDialogue = () ->
+    $container = $ "<div>", id: "tableModal", tabindex: -1, role: "dialog", "aria-labelledby": "tableLabel", "aria-hidden": true
+    $container.addClass "modal hide fade"
+
+    $header = $ "<div>"
+    $header.addClass "modal-header"
+    $header.append () ->
+      $close = $ "<button>", type: "button", "data-dismiss": "modal", "aria-hidden": true
+      $close.addClass "close"
+      $close.text "x"
+
+      $h = $ "<h3>", id: "tableLabel"
+      $h.html "<span></span> a Table"
+
+      [$close, $h]
+
+    $body = $ "<div>"
+    $body.addClass "modal-body"
+    $form = $ "<form>"
+    $form.append () ->
+      $basic = $ "<fieldset>"
+      $basic.append () ->
+        $legend = $ "<legend>"
+        $legend.text "Basic"
+        $nameGroup = $ "<div>"
+        $nameGroup.addClass "control-group"
+        $nameGroup.append () ->
+          $label = $ "<label>", for: "table-name"
+          $label.addClass "control-label"
+          $label.text "Name"
+          $controls = $ "<div>"
+          $controls.addClass "controls"
+          $controls.append () ->
+            $input = $ "<input>", id: "table-name", type: "text", "required": "required"
+            $help = $ "<span>"
+            $help.addClass "help-inline"
+            $help.text "Required. This must be unique."
+            [$input, $help]
+          [$label, $controls]
+        $descriptionGroup = $ "<div>"
+        $descriptionGroup.addClass "control-group"
+        $descriptionGroup.append () ->
+          $label = $ "<label>", for: "table-description"
+          $label.addClass "control-label"
+          $label.text "Description"
+          $controls = $ "<div>"
+          $controls.addClass "controls"
+          $controls.append () ->
+            $input = $ "<input>", id: "table-description", type: "text"
+            $help = $ "<span>"
+            $help.addClass "help-inline"
+            $help.text "A helpful comment."
+            [$input, $help]
+          [$label, $controls]
+        $schemaGroup = $ "<div>"
+        $schemaGroup.addClass "control-group"
+        $schemaGroup.append () ->
+          $label = $ "<label>", for: "table-schema"
+          $label.addClass "control-label"
+          $label.text "Schema"
+          $controls = $ "<div>"
+          $controls.addClass "controls"
+          $controls.append () ->
+            $input = $ "<input>", id: "table-schema", type: "text"
+            $inherit = $ "<label>", for: "table-schema-inherit"
+            $inherit.addClass "checkbox inline"
+            $inherit.append () ->
+              $checkbox = $ "<input>", id: "table-schema-inherit", type: "checkbox", value: "inherit"
+              [$checkbox, "Inherit"]
+            $help = $ "<span>"
+            $help.addClass "help-inline"
+            [$input, "  or  ", $inherit, $help]
+          [$label, $controls]
+        [$legend, $nameGroup, $descriptionGroup, $schemaGroup]
+      $advanced = $ "<div>", id: "advanced-accordion"
+      $advanced.addClass "accordion"
+      $advanced.append () ->
+        $php = $ "<fieldset>"
+        $php.addClass "accordion-group"
+        $php.append () ->
+          $legend = $ "<legend>"
+          $legend.addClass "accordion-heading"
+          $legend.append () ->
+            $span = $ "<a>", "data-toggle": "collapse", "data-parent": "#advanced-accordion", href: "#php"
+            $span.addClass "accordion-toggle"
+            $span.text "PHP"
+            $span
+          $accordionBody = $ "<div>", id: "php"
+          $accordionBody.addClass "accordion-body collapse"
+          $accordionBody.append () ->
+            $accordionInner = $ "<div>"
+            $accordionInner.addClass "accordion-inner"
+            $accordionInner.append () ->
+              $phpNameGroup = $ "<div>"
+              $phpNameGroup.addClass "control-group"
+              $phpNameGroup.append () ->
+                $label = $ "<label>", for: "table-phpName"
+                $label.addClass "control-label"
+                $label.text "PHP Name"
+                $controls = $ "<div>"
+                $controls.addClass "controls"
+                $controls.append () ->
+                  $input = $ "<input>", id: "table-phpName", type: "text"
+                  $help = $ "<span>"
+                  $help.addClass "help-inline"
+                  $help.text "Object model class name."
+                  [$input, $help]
+                [$label, $controls]
+              $packageGroup = $ "<div>"
+              $packageGroup.addClass "control-group"
+              $packageGroup.append () ->
+                $label = $ "<label>", for: "table-package"
+                $label.addClass "control-label"
+                $label.text "Package"
+                $controls = $ "<div>"
+                $controls.addClass "controls"
+                $controls.append () ->
+                  $input = $ "<input>", id: "table-package", type: "text"
+                  $inherit = $ "<label>", for: "table-package-inherit"
+                  $inherit.addClass "checkbox inline"
+                  $inherit.append () ->
+                    $checkbox = $ "<input>", id: "table-package-inherit", type: "checkbox", value: "inherit"
+                    [$checkbox, "Inherit"]
+                  $help = $ "<span>"
+                  $help.addClass "help-inline"
+                  $help.text "The package in which the model classes will be generated"
+                  [$input, "  or  ", $inherit, $help]
+                [$label, $controls]
+              ["phpname,package,namespace,abstract,phpNamimgMethod,baseClass,basePeer", $phpNameGroup, $packageGroup]
+            $accordionInner
+          [$legend, $accordionBody] #$php.append()
+          
+        $propel = $ "<fieldset>"
+        $propel.addClass "accordion-group"
+        $propel.append () ->
+          $legend = $ "<legend>"
+          $legend.addClass "accordion-heading"
+          $legend.append () ->
+            $span = $ "<a>", "data-toggle": "collapse", "data-parent": "#advanced-accordion", href: "#propel"
+            $span.addClass "accordion-toggle"
+            $span.text "Propel"
+            $span
+          $accordionBody = $ "<div>", id: "propel"
+          $accordionBody.addClass "accordion-body collapse"
+          $accordionBody.append () ->
+            $accordionInner = $ "<div>"
+            $accordionInner.addClass "accordion-inner"
+            $accordionInner.append () ->
+              "skipSql,isCrossRef,heavyIndexing,readOnly,treeMode,reloadOnInsert,reloadOnUpdate,allowPkInsert"
+            $accordionInner
+          [$legend, $accordionBody] #$propel.append()
+        [$php, $propel]
+      [$basic, $advanced]
+    $body.append $form
+
+    $footer = $ "<div>"
+    $footer.addClass "modal-footer"
+    $footer.append () ->
+      $cancel = $ "<button>", "data-dismiss": "modal", "aria-hidden": true
+      $cancel.addClass "btn"
+      $cancel.text "Cancel"
+      $cancel.on "click", () ->
+        $body.children("div.alert").hide()
+        $body.find("div.error").removeClass "error"
+
+      $done = $ "<button>"
+      $done.addClass "btn btn-primary"
+      $done.text "Done"
+      $done.on "click", () -> $form.trigger "submit"
+
+      [$cancel, $done]
+
+    $container.append $header, $body, $footer
+    $("body").append $container
+    $container
     
   checkFile = (file) ->
     mime = /^text.*$/
@@ -221,5 +469,10 @@ jQuery(document).ready ($) ->
         
     $modal.modal "show"
     
-  init()
+  openTableDialogue = () ->
+    $modal = $ "#tableModal"
+    if $modal.length is 0 then $modal = addTableDialogue()
+    $modal.modal "show"
+    
+  init()###
     

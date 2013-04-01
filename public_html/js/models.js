@@ -633,6 +633,8 @@ Table = (function() {
     }
   };
 
+  Table.INHERIT = "__inherit__";
+
   Table.PhpNamingMethod = {
     CLEAN: "clean",
     NOCHANGE: "nochange",
@@ -666,29 +668,31 @@ Table = (function() {
   };
 
   function Table(name) {
-    var _abstract, _allowPkInsert, _baseClass, _basePeer, _columns, _description, _foreignKeys, _heavyIndexing, _idMethod, _indices, _isCrossRef, _name, _namespace, _package, _phpName, _phpNamingMethod, _readOnly, _reloadOnInsert, _reloadOnUpdate, _schema, _skipSql, _treeMode, _uniqueIndices;
-    _abstract = false;
-    _allowPkInsert = false;
-    _baseClass = null;
-    _basePeer = null;
+    var _attributes, _columns, _foreignKeys, _indices, _uniqueIndices;
+    _attributes = {
+      abstract: false,
+      allowPkInsert: false,
+      baseClass: Table.INHERIT,
+      basePeer: Table.INHERIT,
+      description: null,
+      heavyIndexing: Table.INHERIT,
+      idMethod: Table.INHERIT,
+      isCrossRef: false,
+      name: null,
+      namespace: Table.INHERIT,
+      "package": Table.INHERIT,
+      phpName: null,
+      phpNamingMethod: Table.INHERIT,
+      readOnly: false,
+      reloadOnInsert: false,
+      reloadOnUpdate: false,
+      schema: Table.INHERIT,
+      skipSql: false,
+      treeMode: null
+    };
     _columns = new LinkedList();
-    _description = null;
-    _heavyIndexing = false;
     _foreignKeys = new LinkedList();
-    _idMethod = Table.IdMethod.NONE;
     _indices = new LinkedList();
-    _isCrossRef = false;
-    _name = null;
-    _namespace = null;
-    _package = null;
-    _phpName = null;
-    _phpNamingMethod = Table.PhpNamingMethod.UNDERSCORE;
-    _readOnly = false;
-    _reloadOnInsert = false;
-    _reloadOnUpdate = false;
-    _schema = null;
-    _skipSql = false;
-    _treeMode = null;
     _uniqueIndices = new LinkedList();
     if (!String.prototype.trim) {
       String.prototype.trim = function() {
@@ -731,19 +735,19 @@ Table = (function() {
       }
     };
     this.allowPkInsert = function() {
-      return _allowPkInsert;
+      return _attributes.allowPkInsert;
     };
     this.getBaseClass = function() {
-      return _baseClass;
+      return _attributes.baseClass;
     };
     this.getBasePeer = function() {
-      return _basePeer;
+      return _attributes.basePeer;
     };
     this.getDescription = function() {
-      return _description;
+      return _attributes.description;
     };
     this.getIdMethod = function() {
-      return _idMethod;
+      return _attributes.idMethod;
     };
     this.getColumns = function() {
       return _columns.getItems();
@@ -758,46 +762,46 @@ Table = (function() {
       return _uniqueIndices.getItems();
     };
     this.getName = function() {
-      return _name;
+      return _attributes.name;
     };
     this.getNamespace = function() {
-      return _namespace;
+      return _attributes.namespace;
     };
     this.getPackage = function() {
-      return _package;
+      return _attributes["package"];
     };
     this.getPhpName = function() {
-      return _phpName;
+      return _attributes.phpName;
     };
     this.getPhpNamingMethod = function() {
-      return _phpNamingMethod;
+      return _attributes.phpNamingMethod;
     };
     this.getSchema = function() {
-      return _schema;
+      return _attributes.schema;
     };
     this.getTreeMode = function() {
-      return _treeMode;
+      return _attributes.treeMode;
     };
     this.isAbstract = function() {
-      return _abstract;
+      return _attributes.abstract;
     };
     this.isCrossRef = function() {
-      return _isCrossRef;
+      return _attributes.isCrossRef;
     };
     this.isHeavyIndexing = function() {
-      return _heavyIndexing;
+      return _attributes.heavyIndexing;
     };
     this.isReadOnly = function() {
-      return _readOnly;
+      return _attributes.readOnly;
     };
     this.isSkipSql = function() {
-      return _skipSql;
+      return _attributes.skipSql;
     };
     this.reloadOnInsert = function() {
-      return _reloadOnInsert;
+      return _attributes.reloadOnInsert;
     };
     this.reloadOnUpdate = function() {
-      return _reloadOnUpdate;
+      return _attributes.reloadOnUpdate;
     };
     this.removeColumn = function(column) {
       if (column instanceof Column) {
@@ -831,57 +835,61 @@ Table = (function() {
       if (bool == null) {
         bool = true;
       }
-      return _abstract = bool ? true : false;
+      if (bool) {
+        return _attributes.abstract = bool ? true : false;
+      }
     };
     this.setAllowPkInsert = function(bool) {
       if (bool == null) {
         bool = true;
       }
-      return _allowPkInsert = bool ? true : false;
+      return _attributes.allowPkInsert = bool ? true : false;
     };
     this.setBaseClass = function(baseClass) {
       if (typeof baseClass === "string") {
         baseClass = baseClass.trim();
       }
-      return _baseClass = baseClass ? baseClass : null;
+      return _attributes.baseClass = baseClass ? baseClass : Table.INHERIT;
     };
     this.setBaseClass = function(basePeer) {
       if (typeof basePeer === "string") {
         basePeer = basePeer.trim();
       }
-      return _basePeer = basePeer ? basePeer : null;
+      return _attributes.basePeer = basePeer ? basePeer : Table.INHERIT;
     };
     this.setDescription = function(description) {
-      return _description = description ? description : null;
+      return _attributes.description = description ? description : null;
     };
     this.setHeavyIndexing = function(bool) {
       if (bool == null) {
         bool = true;
       }
-      return _heavyIndexing = bool ? true : false;
+      if (bool === Table.INHERIT) {
+        _attributes.heavyIndexing = Table.INHERIT;
+      }
+      return _attributes.heavyIndexing = bool ? true : false;
     };
     this.setIdMethod = function(method) {
-      var _method;
       if (method == null) {
-        method = Table.IdMethod.NONE;
+        method = Table.INHERIT;
       }
       if (__indexOf.call(Table.IdMethod.toArray(), method) >= 0) {
-        return _method = method;
+        return _attributes.method = method;
       } else {
-        return false;
+        return Table.INHERIT;
       }
     };
     this.setIsCrossRef = function(bool) {
       if (bool == null) {
         bool = true;
       }
-      return _isCrossRef = bool ? true : false;
+      return _attributes.isCrossRef = bool ? true : false;
     };
     this.setName = function(name) {
       if (typeof name === "string") {
         name = name.trim();
       }
-      return _name = (function() {
+      return _attributes.name = (function() {
         if (name) {
           return name;
         } else {
@@ -893,19 +901,19 @@ Table = (function() {
       if (typeof namespace === "string") {
         namespace = namespace.trim;
       }
-      return _namespace = namespace ? namespace : null;
+      return _attributes.namespace = namespace ? namespace : Table.INHERIT;
     };
     this.setPackage = function(thepackage) {
       if (typeof thepackage === "string") {
         thepackage = thepackage.trim;
       }
-      return _package = thepackage ? thepackage : null;
+      return _attributes["package"] = thepackage ? thepackage : Table.INHERIT;
     };
     this.setPhpName = function(name) {
       if (typeof name === "string") {
         name = name.trim();
       }
-      return _phpName = name ? name : null;
+      return _attributes.phpName = name ? name : null;
     };
     this.setPhpNamingMethod = function(method) {
       var _method;
@@ -915,43 +923,41 @@ Table = (function() {
       if (__indexOf.call(Table.PhpNamingMethod.toArray(), method) >= 0) {
         return _method = method;
       } else {
-        return false;
+        return Table.INHERIT;
       }
     };
     this.setReadOnly = function(bool) {
       if (bool == null) {
         bool = true;
       }
-      return _readOnly = bool ? true : false;
+      return _attributes.readOnly = bool ? true : false;
     };
     this.setReloadOnInsert = function(bool) {
-      var _realoadOnInsert;
       if (bool == null) {
         bool = true;
       }
-      return _realoadOnInsert = bool ? true : false;
+      return _attributes.realoadOnInsert = bool ? true : false;
     };
     this.setReloadOnUpdate = function(bool) {
-      var _realoadOnUpdate;
       if (bool == null) {
         bool = true;
       }
-      return _realoadOnUpdate = bool ? true : false;
+      return _attributes.realoadOnUpdate = bool ? true : false;
     };
     this.setSchema = function(schema) {
       if (typeof schema === "string") {
         schema = schema.trim;
       }
-      return _schema = schema ? schema : null;
+      return _attributes.schema = schema ? schema : Table.INHERIT;
     };
     this.setSkipSql = function(bool) {
       if (bool == null) {
         bool = true;
       }
-      return _skipSql = bool ? true : false;
+      return _attributes.skipSql = bool ? true : false;
     };
     this.setTreeMode = function(treeMode) {
-      return _treeMode = __indexOf.call(Table.TreeMode.toArray(), treeMode) >= 0 ? treeMode : null;
+      return _attributes.treeMode = __indexOf.call(Table.TreeMode.toArray(), treeMode) >= 0 ? treeMode : null;
     };
     this.setName(name);
   }

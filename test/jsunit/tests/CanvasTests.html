@@ -60,8 +60,8 @@
                 svg.propelCanvas("destroy");
                 svg.propelCanvas();
                 svg.propelCanvas("addTable", table);
-                databaseObj = $("svg").data(plugin).database
-                tableObj = $("svg#test-svg").data(plugin).table
+                databaseObj = svg.data(plugin).database;
+                tableObj = $("svg#test-table-svg").data(plugin).table;
                 assertTrue("Table object should be in the controller", -1 < $.inArray(table, databaseObj.getTables()));
                 assertEquals("Table object should be in the table SVG", table, tableObj);
             }
@@ -115,7 +115,7 @@
                 svg.propelCanvas("addTable", new Table("testTable"));
                 svg.propelCanvas("addColumn", column, "testTable");
                 tableObj = $("svg.table-svg").data(plugin).table;
-                columnObj = $("svg#testTable-test-svg").data(plugin).column;
+                columnObj = $("svg#testTable-test-column-svg").data(plugin).column;
                 assertTrue("Column object should be in the table SVG's data", -1 < $.inArray(column, tableObj.getColumns()));
                 assertEquals("Column object should be in the column SVG", column, columnObj);
             }

@@ -378,6 +378,8 @@ class Table
     toArray: () ->
       this[method] for method of this when method isnt "toArray"
       
+  @INHERIT = "__inherit__"
+      
   @PhpNamingMethod =
     CLEAN:      "clean"
     NOCHANGE:   "nochange"
@@ -393,28 +395,29 @@ class Table
       this[mode] for mode of this when mode isnt "toArray"
       
   constructor: (name) ->
-    _abstract = false
-    _allowPkInsert = false
-    _baseClass = null
-    _basePeer = null
+    _attributes =
+      abstract: false
+      allowPkInsert: false
+      baseClass: Table.INHERIT
+      basePeer: Table.INHERIT
+      description: null
+      heavyIndexing: Table.INHERIT
+      idMethod: Table.INHERIT
+      isCrossRef: false
+      name: null
+      namespace: Table.INHERIT
+      package: Table.INHERIT
+      phpName: null
+      phpNamingMethod: Table.INHERIT
+      readOnly: false
+      reloadOnInsert: false
+      reloadOnUpdate: false
+      schema: Table.INHERIT
+      skipSql: false
+      treeMode: null
     _columns = new LinkedList()
-    _description = null
-    _heavyIndexing = false
     _foreignKeys = new LinkedList()
-    _idMethod = Table.IdMethod.NONE
     _indices = new LinkedList()
-    _isCrossRef = false
-    _name = null
-    _namespace = null
-    _package = null
-    _phpName = null
-    _phpNamingMethod = Table.PhpNamingMethod.UNDERSCORE
-    _readOnly = false
-    _reloadOnInsert = false
-    _reloadOnUpdate = false
-    _schema = null
-    _skipSql = false
-    _treeMode = null
     _uniqueIndices = new LinkedList()
     
     if not String::trim
@@ -451,15 +454,15 @@ class Table
       else
         false
     
-    @allowPkInsert = () -> _allowPkInsert
+    @allowPkInsert = () -> _attributes.allowPkInsert
     
-    @getBaseClass = () -> _baseClass
+    @getBaseClass = () -> _attributes.baseClass
     
-    @getBasePeer = () -> _basePeer
+    @getBasePeer = () -> _attributes.basePeer
     
-    @getDescription = () -> _description
+    @getDescription = () -> _attributes.description
     
-    @getIdMethod = () -> _idMethod
+    @getIdMethod = () -> _attributes.idMethod
     
     @getColumns = () -> _columns.getItems()
     
@@ -469,33 +472,33 @@ class Table
     
     @getUniqueIndices = () -> _uniqueIndices.getItems()
     
-    @getName = () -> _name
+    @getName = () -> _attributes.name
     
-    @getNamespace = () -> _namespace
+    @getNamespace = () -> _attributes.namespace
     
-    @getPackage = () -> _package
+    @getPackage = () -> _attributes.package
     
-    @getPhpName = () -> _phpName
+    @getPhpName = () -> _attributes.phpName
     
-    @getPhpNamingMethod = () -> _phpNamingMethod
+    @getPhpNamingMethod = () -> _attributes.phpNamingMethod
     
-    @getSchema = () -> _schema
+    @getSchema = () -> _attributes.schema
     
-    @getTreeMode = () -> _treeMode
+    @getTreeMode = () -> _attributes.treeMode
     
-    @isAbstract = () -> _abstract
+    @isAbstract = () -> _attributes.abstract
     
-    @isCrossRef = () -> _isCrossRef
+    @isCrossRef = () -> _attributes.isCrossRef
     
-    @isHeavyIndexing = () -> _heavyIndexing
+    @isHeavyIndexing = () -> _attributes.heavyIndexing
     
-    @isReadOnly = () -> _readOnly
+    @isReadOnly = () -> _attributes.readOnly
     
-    @isSkipSql = () -> _skipSql
+    @isSkipSql = () -> _attributes.skipSql
     
-    @reloadOnInsert = () -> _reloadOnInsert
+    @reloadOnInsert = () -> _attributes.reloadOnInsert
     
-    @reloadOnUpdate = () -> _reloadOnUpdate
+    @reloadOnUpdate = () -> _attributes.reloadOnUpdate
     
     @removeColumn = (column) ->
       if column instanceof Column
@@ -520,69 +523,70 @@ class Table
       else
         false
       
-    @setAbstract = (bool = true) ->
-      _abstract = if bool then true else false
+    @setAbstract = (bool = true) ->if bool
+      _attributes.abstract = if bool then true else false
       
     @setAllowPkInsert = (bool = true) ->
-      _allowPkInsert = if bool then true else false
+      _attributes.allowPkInsert = if bool then true else false
       
     @setBaseClass = (baseClass) ->
       baseClass = baseClass.trim() if typeof baseClass is "string"
-      _baseClass = if baseClass then baseClass else null
+      _attributes.baseClass = if baseClass then baseClass else Table.INHERIT
       
     @setBaseClass = (basePeer) ->
       basePeer = basePeer.trim() if typeof basePeer is "string"
-      _basePeer = if basePeer then basePeer else null
+      _attributes.basePeer = if basePeer then basePeer else Table.INHERIT
       
     @setDescription = (description) ->
-      _description = if description then description else null
+      _attributes.description = if description then description else null
       
     @setHeavyIndexing = (bool = true) ->
-      _heavyIndexing = if bool then true else false
+      if bool is Table.INHERIT then _attributes.heavyIndexing = Table.INHERIT
+      _attributes.heavyIndexing = if bool then true else false
       
-    @setIdMethod = (method = Table.IdMethod.NONE) ->
-      if method in Table.IdMethod.toArray() then _method =  method else false
+    @setIdMethod = (method = Table.INHERIT) ->
+      if method in Table.IdMethod.toArray() then _attributes.method =  method else Table.INHERIT
       
     @setIsCrossRef = (bool = true) ->
-      _isCrossRef = if bool then true else false
+      _attributes.isCrossRef = if bool then true else false
     
     @setName = (name) ->
       name = name.trim() if typeof name is "string"
-      _name = if name then name else throw "Table must have a name"
+      _attributes.name = if name then name else throw "Table must have a name"
       
     @setNamespace = (namespace) ->
       namespace = namespace.trim if typeof namespace is "string"
-      _namespace = if namespace then namespace else null
+      _attributes.namespace = if namespace then namespace else Table.INHERIT
       
     @setPackage = (thepackage) ->
       thepackage = thepackage.trim if typeof thepackage is "string"
-      _package = if thepackage then thepackage else null
+      _attributes.package = if thepackage then thepackage else Table.INHERIT
       
     @setPhpName = (name) ->
       name = name.trim() if typeof name is "string"
-      _phpName = if name then name else null
+      _attributes.phpName = if name then name else null
       
     @setPhpNamingMethod = (method = Table.PhpNamingMethod.UNDERSCORE) ->
-      if method in Table.PhpNamingMethod.toArray() then _method = method else false
+      if method in Table.PhpNamingMethod.toArray() then _method = method else Table.INHERIT
       
     @setReadOnly = (bool = true) ->
-      _readOnly = if bool then true else false
+      _attributes.readOnly = if bool then true else false
       
     @setReloadOnInsert = (bool = true) ->
-      _realoadOnInsert = if bool then true else false
+      _attributes.realoadOnInsert = if bool then true else false
       
     @setReloadOnUpdate = (bool = true) ->
-      _realoadOnUpdate = if bool then true else false
+      _attributes.realoadOnUpdate = if bool then true else false
       
     @setSchema = (schema) ->
       schema = schema.trim if typeof schema is "string"
-      _schema = if schema then schema else null
+      _attributes.schema = if schema then schema else Table.INHERIT
       
     @setSkipSql = (bool = true) ->
-      _skipSql = if bool then true else false
+      _attributes.skipSql = if bool then true else false
       
     @setTreeMode = (treeMode) ->
-      _treeMode = if treeMode in Table.TreeMode.toArray() then treeMode else null
+      _attributes.treeMode = if treeMode in Table.TreeMode.toArray() then treeMode else null
       
     @setName name
     

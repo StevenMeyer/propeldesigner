@@ -7,76 +7,7 @@
  * THE JAVASCRIPT IS GENERATED FROM COFFEESCRIPT.
 ###
 
-$ = jQuery
-window.PropelDesigner or=
-  UI:
-    Bootstrap:
-      Dropdown: class Dropdown
-        @makeDropdown: (items) ->
-          $list = $ "<ul>", role: "menu", "aria-labelledby": "dropdownMenu"
-          $list.addClass "dropdown-menu"
-          makeListItem = (item) ->
-            $listItem = $ "<li>"
-            $listItem.append () ->
-              $a = $ "<a>", tabindex: -1, href: "#"
-              if typeof item is "string"
-                $a.html item
-              else
-                theItem = item["item"] ? item
-                $item = if theItem instanceof jQuery then theItem else $ theItem
-                $a.append $item
-              $a
-            if item.hasOwnProperty "events"
-              for event, action of item.events
-                $listItem.on event, action
-            $listItem
-          $list.append makeListItem item for item in items if items?
-          $list
-
-    Build:
-      Buttons: class Buttons
-        @addButtons: ($parent) ->
-          if $parent not instanceof jQuery then $parent = $ $parent
-
-    Button: class Button
-      @makeDropdownButton: (buttonText, $dropdown, options) ->
-        $container = $ "<div>"
-        $container.addClass "btn-group"
-        $container.addClass "dropup" if options.dropUp
-        $container.append () ->
-          $text = $ "<a>", "data-toggle": "dropdown", href: "#"
-          $text.addClass "btn dropdown-toggle"
-          $text.addClass "btn-#{options.buttonSize}" if options.buttonSize
-          $text.html buttonText
-          $text.append $ "<span class='caret'>"
-
-          if $dropdown.hasClass "dropdown-menu"
-            [$text, $dropdown]
-          else
-            $text
-
-    Form: class Form
-      @addHelpText: ($element, helpTtext, displayType) ->
-        displayType = if displayType is "block" then "block" else "inline"
-        $help = $ "<span>"
-        $help.addClass "help-#{displayType}"
-        $help.html helpText
-        if $element not instanceof jQuery
-          $help
-        else
-          $element.append $help
-          $element
-
-      @makeControlGroup: ($controls, $label) ->
-        $group = $ "<div>"
-        $group.addClass "control-group"
-        $group.append () ->
-          $controlsDiv = $ "<div>"
-          $controlsDiv.addClass "controls"
-          $controlsDiv.append $controls
-          if $label then [$label, $controlsDiv] else $controlsDiv
-
-###jQuery(document).ready ($) ->
+jQuery(document).ready ($) ->
   addLoadDialogue = () ->
     $container = $ "<div>", id: "loadModal", tabindex: -1, role: "dialog", "aria-labelledby": "loadLabel", "aria-hidden": true
     $container.addClass "modal hide fade"
@@ -474,5 +405,5 @@ window.PropelDesigner or=
     if $modal.length is 0 then $modal = addTableDialogue()
     $modal.modal "show"
     
-  init()###
+  init()
     

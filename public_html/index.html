@@ -82,15 +82,16 @@
         <script src="js/plugins.js"></script>
         <script src="js/models.js"></script>
         <script src="js/builder.js"></script>
-        <script src="js/main.js"></script>
+        <script src="js/bootstrap.js"></script>
+        <script src="js/ui.js"></script>
         <script src="js/canvas.js"></script>
         
         <script type="text/javascript">
-            var svg = $("#canvas");
+            var svg = $("#canvas"), $topMenu;
             svg.propelCanvas();
-            svg.propelCanvas("addTable", new Table("test"));
-            svg.propelCanvas("addColumn", new Column("col1"), "test");
-            svg.propelCanvas("addColumn", new Column("col2"), "test");
+            
+            $topMenu = new PropelUI.TopMenu();
+            $topMenu.addClass("navbar-form pull-right").appendTo($("div.navbar").find("div.nav-collapse"));
         </script>
 
         <script>

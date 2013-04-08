@@ -6,12 +6,66 @@
         <link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css" />
         <script type="text/javascript" src="../app/jsUnitCore.js"></script>
         <script type="text/javascript" src="../../../public_html/js/vendor/jquery-1.9.1.min.js"></script>
+        <script type="text/javascript" src="../../../public_html/js/vendor/bootstrap.min.js"></script>
         <!--script type="text/javascript" src="../../../public_html/js/models.js"></script-->
         <!--script type="text/javascript" src="../../../public_html/js/canvas.js"></script-->
-        <script type="text/javascript" src="../../../public_html/js/main.js"></script>
+        <script type="text/javascript" src="../../../public_html/js/bootstrap.js"></script>
+        <script type="text/javascript" src="../../../public_html/js/ui.js"></script>
     </head>
     <body>
         <p>Test Page for the UI builder.</p>
-        <script type="text/javascript" src="UI.Bootstrap.Dropdown.js"></script>
+        <script type="text/javascript" src="Bootstrap.Base.Button.js"></script>
+        <script type="text/javascript" src="Bootstrap.Base.Form.js"></script>
+        <script type="text/javascript" src="Bootstrap.Components.Dropdown.js"></script>
+        <script type="text/javascript" src="Bootstrap.Javascript.Dropdown.js"></script>
+        <script type="text/javascript" src="Bootstrap.Javascript.Modal.js"></script>
+        <script type="text/javascript">
+            function testCreateUIButtons() {
+                var $buttons = new PropelUI.TopMenu();
+                assertTrue("The buttons container should be a jQuery object", $buttons instanceof jQuery);
+                assertEquals("Buttons should be in a form", "form", $buttons.get(0).nodeName.toLowerCase());
+                assertTrue("The 'add' dropdown button should be present", $buttons.find("[data-toggle='dropdown'].dropdown-toggle").text().indexOf("Add") > -1);
+                assertTrue("The 'save' dropdown button should be present", $buttons.find("[data-toggle='dropdown'].dropdown-toggle").text().indexOf("Save") > -1);
+                assertTrue("The 'load' dropdown button should be present", $buttons.find("[data-toggle='dropdown'].dropdown-toggle").text().indexOf("Load") > -1);
+            }
+            
+            function testUIButtonsHaveMenus() {
+                var $buttons = new PropelUI.TopMenu();
+                assertTrue("Add button should have a menu", $buttons.find("ul#add-menu").hasClass("dropdown-menu") && $buttons.find("ul#add-menu > li").length > 0);
+                assertTrue("Save button should have a menu", $buttons.find("ul#save-menu").hasClass("dropdown-menu") && $buttons.find("ul#load-menu > li").length > 0);
+                assertTrue("Load button should have a menu", $buttons.find("ul#load-menu").hasClass("dropdown-menu") && $buttons.find("ul#load-menu > li").length > 0);
+            }
+            
+            function testLoadDialogue() {
+                var $dialogue = PropelUI.Dialogues.LoadDialogue.getDialogue().xml().show();
+                assertEquals("Modal should be present", 1, $("div#loadModal").length);
+                assertEquals("Modal should be visible", "block", $dialogue.css("display"));
+                assertEquals("Load dialogue title should be set", "load an xml schema", $dialogue.find("div.modal-header > h3").text().toLowerCase());
+                assertEquals("Load dialogue should have a Cancel dismiss button", 1, $dialogue.children("div.modal-footer").children("button[data-dismiss='modal']").length);
+                assertEquals("Load dialogue should have a Load button", 1, $dialogue.children("div.modal-footer").children("button#load-xml").length);
+                assertEquals("Load dialogue should contain a textarea input element", 1, $dialogue.children("div.modal-body").find("textarea#xml-input").length);
+                
+                $dialogue.file();
+                assertEquals("Load file dialogue should contain a file input element", 1, $dialogue.children("div.modal-body").find("input#xml-input[type='file']").length);
+                
+                assertEquals("There should be only one input element", 1, $dialogue.children("div.modal-body").find("[id='xml-input']").length);
+            }
+            
+            function testLoadMenuOption() {
+                var $menu = new PropelUI.TopMenu().find("#load-menu"),
+                    $file = $menu.find("a:contains('File')"),
+                    $xml = $menu.find("a:contains('XML')");
+            
+                $("#loadModal").remove();
+                $file.click();
+                assertEquals("Load dialogue should be triggered by the File menu item", "block", $("#loadModal").css("display"));
+                assertEquals("Load dialogue should be the file load dialogue", 1, $("#loadModal").children("div.modal-body").find("input#xml-input[type='file']").length);
+                $("loadModal").modal("hide");
+                
+                $xml.click();
+                assertEquals("Load dialogue should be triggered by the XML menu item", "block", $("#loadModal").css("display"));
+                assertEquals("Load dialogue should be the XML load dialogue", 1, $("#loadModal").children("div.modal-body").find("textarea#xml-input").length);
+            }
+        </script>
     </body>
 </html>

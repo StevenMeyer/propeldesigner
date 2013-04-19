@@ -8,6 +8,25 @@
 ###
 
 $ = jQuery
+
+class IODialogue extends Bootstrap.Javascript.Modal # abstract?
+  constructor: (dialogueId, heading, label, elementId, actionButtonId, actionButtonText) ->
+    heading = "#{heading}"
+    $body = $ "<form>"
+    $body.append $("<fieldset>").append () ->
+      $label = $ "<label>", for: elementID
+      $label.text "#{label}"
+      $controlGroup = new Bootstrap.Base.Form.ControlGroup()
+      $controlGroup.setLabel($label).setControls()
+    $actionButton = new Bootstrap.Base.Button("#{actionButtonText}").primary().on("click", () -> $body.trigger("submit")).attr "id", "#{actionButtonId}"
+    $footer = Bootstrap.Javascript.Modal.makeDismissButton("Cancel").add $actionButton
+    $.extend this, super heading, $body, $footer
+    this.show = () -> LoadDialogueSingleton.prototype.show.call this
+    this.attr "id", "#{dialogueID}"
+    #LoadDialogue.decorate() doesn't work with super()
+    
+    setType = (type) ->
+
 window.PropelUI or= 
   TopMenu: class TopMenu extends jQuery
     constructor: () ->
